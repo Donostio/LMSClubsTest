@@ -363,22 +363,21 @@ function updatePrintControls(){
   printControlsEl.appendChild(btnYear);
 
 // Helper text: only show if no clubs selected
-if (selectedClubs.size === 0) {
-    const helperContainer = document.createElement('div');
-    helperContainer.style.color = 'var(--muted)';
-    helperContainer.style.marginLeft = '8px';
-    helperContainer.style.fontSize = '13px'; // Add a font size for consistency
 
-    const p1 = document.createElement('p');
-    p1.textContent = 'Select clubs to highlight them';
+  if(selectedClubs.size === 0){
 
-    const p2 = document.createElement('p');
-    p2.textContent = 'on your printed timetable';
+    const helper = document.createElement('span');
 
-    helperContainer.appendChild(p1);
-    helperContainer.appendChild(p2);
+    helper.textContent = 'Select clubs to highlight them on your printed timetable';
 
-    printControlsEl.appendChild(helperContainer);
+    helper.style.color = 'var(--muted)';
+
+    helper.style.marginLeft = '8px';
+
+    printControlsEl.appendChild(helper);
+
+  }
+
 }
 
 /* -----------------------------
