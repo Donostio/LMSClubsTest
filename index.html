@@ -339,6 +339,13 @@ function clubMatchesFilter(club, f){
 /* -----------------------------
    Render club cards
    ----------------------------- */
+function specialClubNoteHTML(name){
+  if(!name) return '';
+  const n = name.toLowerCase();
+  if(n.includes('lunch club')) return ' <strong>12:45 start</strong>';
+  if(n.includes('chamber choir') || n.includes('orchestra')) return ' <strong>16:45 finish</strong>';
+  return '';
+}
 
 function renderClubs(){
   const f = getActiveFilters();
@@ -382,7 +389,7 @@ function renderClubs(){
       if(e.target.checked){
         // Check for duplicate clubs
         if(checkForDuplicateClub(club)){
-          showToastMessage('FYI you have two clubs at the same time!', card);
+          showToastMessage('You two clubs at the same time...', card);
         }
         selectedClubs.add(club.urn);
         card.classList.add('selected');
