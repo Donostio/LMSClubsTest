@@ -61,25 +61,14 @@
     /* Filter summary repositioning */
     .search-filter-row { display:flex; align-items:flex-end; gap:12px; }
     #active-filters-summary { margin-left:12px; }
-  
-#club-list label {
-  display: block;
-  padding: 4px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#club-list label:hover {
-  background: #f3f4f6;
-}
-
-</style>
+  </style>
 </head>
 <body>
   <div id="cat-container"><img id="cat-image" src="" alt="cat"></div>
 
   <div class="page" role="main">
     <header class="top">
-      <h1>Lady MM Margaret School — Clubs 2025-26</h1>
+      <h1>Lady Margaret School — Clubs 2025-26</h1>
       <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false" style="background:#7c3aed;color:#fff;padding:10px;border-radius:10px;border:none;cursor:pointer;">Filters</button>
     </header>
 
@@ -173,8 +162,7 @@
         <strong>Club Name</strong>
         <button id="clear-club-name" class="clear-link">Clear</button>
       </div>
-      <div id="club-list"
-           style="max-height:220px; overflow-y:auto; border:1px solid #e6e6e6; border-radius:6px; padding:8px; background:#fff;">
+      <div id="club-list" style="max-height:200px;overflow:auto;border:1px solid #e6e6e6;border-radius:6px;padding:6px;">
         <!-- Clubs populated dynamically -->
       </div>
     </div>
@@ -283,7 +271,9 @@ async function fetchClubsCSV(){
     const res = await fetch('clubs.csv', { cache: 'no-store' });
     const text = await res.text();
     const lines = text.trim().split(/\r?\n/).filter(Boolean);
-    if(lines.length <= 1){ clubsData = []; renderClubs(); populateDeptOptions(); initFilterLogic(); updatePrintControls(); return; }
+    if(lines.length <= 1){ clubsData = []; renderClubs(); populateDeptOptions();
+    populateClubList();
+    initFilterLogic(); updatePrintControls(); return; }
     const rows = lines.slice(1);
     clubsData = rows.map(r => {
       const cols = r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g,''));
@@ -306,6 +296,7 @@ async function fetchClubsCSV(){
       };
     });
     populateDeptOptions();
+    populateClubList();
     initFilterLogic();
     renderClubs();
     updatePrintControls();
@@ -319,10 +310,13 @@ async function fetchClubsCSV(){
 /* -----------------------------
    Populate Department options
    ----------------------------- */
+
 function populateDeptOptions(){
-  const container = document.getElementById('dept-options');
+  const dropdown = document.getElementById('dept-dropdown');
+  if(!dropdown) return;
   const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort();
-  container.innerHTML = depts.map(d=>`<label><input type="checkbox" class="dept-filter" value="${esc(d)}"> ${esc(d)}</label><br>`).join('');
+  dropdown.innerHTML = '<option value="">All</option>' +
+    depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
 }
 
 /* -----------------------------
@@ -335,7 +329,9 @@ function getActiveFilters(){
   const selectedDays = Array.from(document.querySelectorAll('.day-filter:checked')).map(i=>i.value);
   const selectedWhens = Array.from(document.querySelectorAll('.when-filter:checked')).map(i=>i.value);
   const selectedDepts = Array.from(document.querySelectorAll('.dept-filter:checked')).map(i=>i.value);
-  return { year, search, clubNameFilter, selectedDays, selectedWhens, selectedDepts };
+  const selectedDept = document.getElementById('dept-dropdown')?.value || '';
+  const selectedClubs = Array.from(document.querySelectorAll('.club-filter:checked')).map(i=>i.value);
+  return { year, search, selectedDays, selectedWhens, selectedDept, selectedClubs };
 }
 
 function clubMatchesFilter(club, f){
@@ -349,9 +345,8 @@ function clubMatchesFilter(club, f){
   if(f.year){
     if(!club.year.includes('All Years') && !club.year.includes(f.year)) return false;
   }
-  if(f.selectedDepts.length){
-    if(!f.selectedDepts.includes(club.department)) return false;
-  }
+  if(f.selectedDept && club.department !== f.selectedDept) return false;
+  if(f.selectedClubs.length && !f.selectedClubs.includes(club.name)) return false;
   if(f.selectedDays.length && !f.selectedDays.includes('All')){
     if(!f.selectedDays.includes(club.day)) return false;
   }
@@ -528,18 +523,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       .club-name{ font-weight:700; display:block; margin-bottom:6px; }
       .selected-box{ border:2px solid #000; padding:6px; margin-bottom:6px; }
       .other-club{ font-style:italic; color:#6b7280; font-size:90%; line-height:0.95; margin-bottom:4px; display:block; }
-    
-#club-list label {
-  display: block;
-  padding: 4px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-#club-list label:hover {
-  background: #f3f4f6;
-}
-
-</style>
+    </style>
   `;
   let html = `<div id="printable-area"><h1>${esc(title)}</h1>`;
   if(options.showOtherTitle){
@@ -592,8 +576,8 @@ filterOverlay.addEventListener('click', ()=>{ filterPanel.classList.remove('open
 
 document.getElementById('clear-day').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
 document.getElementById('clear-when').addEventListener('click', ()=>{ document.querySelectorAll('.when-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
-document.getElementById('clear-club-name').addEventListener('click', ()=>{ document.getElementById('club-name-filter').value = ''; applyFiltersAndRender(); });
-document.getElementById('clear-dept').addEventListener('click', ()=>{ document.querySelectorAll('.dept-filter').forEach(c=>c.checked = false); applyFiltersAndRender(); });
+document.getElementById('clear-club-name').addEventListener('click', ()=>{ document.querySelectorAll('.club-filter').forEach(c=>c.checked=false); applyFiltersAndRender(); });
+document.getElementById('clear-dept').addEventListener('click', ()=>{ document.getElementById('dept-dropdown').value=''; applyFiltersAndRender(); });
 document.getElementById('clear-all').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter, .when-filter, .dept-filter').forEach(c=>c.checked = false); document.querySelector('.day-filter[value=\"All\"]').checked = true; document.querySelector('.when-filter[value=\"All\"]').checked = true; applyFiltersAndRender(); });
 
 function initFilterLogic(){
@@ -624,7 +608,18 @@ function initFilterLogic(){
 /* -----------------------------
    Apply filters, summary, and events
    ----------------------------- */
-function applyFiltersAndRender(){ renderClubs(); updateActiveFiltersSummary(); updatePrintControls(); }
+
+function populateClubList(){
+  const container = document.getElementById('club-list');
+  if(!container) return;
+  const clubs = [...new Set(clubsData.map(c=>c.name).filter(Boolean))].sort();
+  container.innerHTML = clubs.map(n=>
+    `<label><input type="checkbox" class="club-filter" value="${esc(n)}"> ${esc(n)}</label><br>`
+  ).join('');
+}
+
+function applyFiltersAndRender(){
+ renderClubs(); updateActiveFiltersSummary(); updatePrintControls(); }
 
 function updateActiveFiltersSummary(){
   const parts = [];
@@ -719,10 +714,8 @@ function updateActiveFiltersSummary(){
     else activeFilters.push(`When: ${f.selectedWhens.join(', ')}`);
   }
   
-  if(f.selectedDepts.length){
-    if(f.selectedDepts.length === 1) activeFilters.push(`Dept: ${f.selectedDepts[0]}`);
-    else activeFilters.push(`Depts: ${f.selectedDepts.join(', ')}`);
-  }
+  if(f.selectedDept && club.department !== f.selectedDept) return false;
+  if(f.selectedClubs.length && !f.selectedClubs.includes(club.name)) return false;
   
   if(activeFilters.length === 0){
     summaryEl.textContent = 'All clubs shown';
@@ -733,5 +726,4 @@ function updateActiveFiltersSummary(){
 </script>
 </body>
 </html>
-
 
