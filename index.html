@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -271,7 +272,9 @@ async function fetchClubsCSV(){
     const res = await fetch('clubs.csv', { cache: 'no-store' });
     const text = await res.text();
     const lines = text.trim().split(/\r?\n/).filter(Boolean);
-    if(lines.length <= 1){ clubsData = []; renderClubs(); populateDeptOptions(); initFilterLogic(); updatePrintControls(); return; }
+    if(lines.length <= 1){ clubsData = []; renderClubs(); populateDeptOptions();
+    populateClubList();
+    initFilterLogic(); updatePrintControls(); return; }
     const rows = lines.slice(1);
     clubsData = rows.map(r => {
       const cols = r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g,''));
@@ -294,6 +297,7 @@ async function fetchClubsCSV(){
       };
     });
     populateDeptOptions();
+    populateClubList();
     initFilterLogic();
     renderClubs();
     updatePrintControls();
@@ -312,7 +316,7 @@ function populateDeptOptions(){
   const dropdown = document.getElementById('dept-dropdown');
   if(!dropdown) return;
   const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort();
-  dropdown.innerHTML = '<option value="">All</option>' + 
+  dropdown.innerHTML = '<option value="">All</option>' +
     depts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
 }
 
@@ -328,7 +332,7 @@ function getActiveFilters(){
   const selectedDepts = Array.from(document.querySelectorAll('.dept-filter:checked')).map(i=>i.value);
   const selectedDept = document.getElementById('dept-dropdown')?.value || '';
   const selectedClubs = Array.from(document.querySelectorAll('.club-filter:checked')).map(i=>i.value);
-  return { year, search, clubNameFilter, selectedDays, selectedWhens, selectedDept, selectedClubs };
+  return { year, search, selectedDays, selectedWhens, selectedDept, selectedClubs };
 }
 
 function clubMatchesFilter(club, f){
@@ -574,7 +578,7 @@ filterOverlay.addEventListener('click', ()=>{ filterPanel.classList.remove('open
 document.getElementById('clear-day').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
 document.getElementById('clear-when').addEventListener('click', ()=>{ document.querySelectorAll('.when-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
 document.getElementById('clear-club-name').addEventListener('click', ()=>{ document.querySelectorAll('.club-filter').forEach(c=>c.checked=false); applyFiltersAndRender(); });
-document.getElementById('clear-dept').addEventListener('click', ()=>{ document.getElementById('dept-dropdown').value = ''; applyFiltersAndRender(); });
+document.getElementById('clear-dept').addEventListener('click', ()=>{ document.getElementById('dept-dropdown').value=''; applyFiltersAndRender(); });
 document.getElementById('clear-all').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter, .when-filter, .dept-filter').forEach(c=>c.checked = false); document.querySelector('.day-filter[value=\"All\"]').checked = true; document.querySelector('.when-filter[value=\"All\"]').checked = true; applyFiltersAndRender(); });
 
 function initFilterLogic(){
@@ -610,10 +614,11 @@ function populateClubList(){
   const container = document.getElementById('club-list');
   if(!container) return;
   const clubs = [...new Set(clubsData.map(c=>c.name).filter(Boolean))].sort();
-  container.innerHTML = clubs.map(n=>`<label><input type="checkbox" class="club-filter" value="${esc(n)}"> ${esc(n)}</label><br>`).join('');
+  container.innerHTML = clubs.map(n=>
+    `<label><input type="checkbox" class="club-filter" value="${esc(n)}"> ${esc(n)}</label><br>`
+  ).join('');
 }
 
-// ---
 function applyFiltersAndRender(){
  renderClubs(); updateActiveFiltersSummary(); updatePrintControls(); }
 
@@ -722,6 +727,8 @@ function updateActiveFiltersSummary(){
 </script>
 </body>
 </html>
+
+
 
 
 
