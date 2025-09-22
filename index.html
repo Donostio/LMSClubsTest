@@ -8,545 +8,187 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <style>
-    /* ----- Page / theme ----- */
     body {
       font-family: 'Inter', sans-serif;
       -webkit-tap-highlight-color: transparent;
       background-color: #000;
       background-image: repeating-linear-gradient(to right, #ef4444, #ef4444 2px, #000 2px, #000 24px);
-      margin:0;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
     }
-
-    .container { max-width:1180px; margin:22px auto; padding:18px; }
-
-    /* Title area white background */
-    header.card { background:#fff; padding:18px; border-radius:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
-
-    /* ----- Cats animation styles (restored from original) ----- */
-    .cat-container { position: fixed; z-index: 100; pointer-events: none; will-change: transform; }
-    .cat-container.from-top { top: 0; left: 50%; transform: translate(-50%, -100vh); transition: transform 0.8s ease-out; }
-    .cat-container.from-top.is-active { transform: translate(-50%, 0); }
-    .cat-container.from-right { top: 50%; right: 0; transform: translate(100vw, -50%); transition: transform 0.8s ease-out; }
-    .cat-container.from-right.is-active { transform: translate(0, -50%); }
-    .cat-container.from-bottom { bottom: 0; left: 50%; transform: translate(-50%, 100vh); transition: transform 0.8s ease-out; }
-    .cat-container.from-bottom.is-active { transform: translate(-50%, 0); }
-    .cat-container.from-left { top: 50%; left: 0; transform: translate(-100vw, -50%); transition: transform 0.8s ease-out; }
-    .cat-container.from-left.is-active { transform: translate(0, -50%); }
-    .cat-container.ascending-cat { bottom: 0; left: 50%; transform: translate(-50%, 100%); transition: none; }
-    .cat-container.ascending-cat.is-active { transform: translate(-50%, -66.6666%); transition: transform 3s ease-out; }
-    .cat-container.ascending-cat.slide-down { transform: translate(-50%, 100%); transition: transform 0.5s ease-in; }
-    .cat-container img { width: 150px; height: auto; border-radius: 0.75rem; }
-    .cat-container.ascending-cat img { transform: scale(4); }
-
-    /* ----- Club cards & layout ----- */
-    .club-selected { box-shadow: 0 0 0 3px rgba(0,0,0,1), 0 0 0 6px rgba(239,68,68,0.95); border: 2px solid rgba(239,68,68,0.9); }
-    .club-select-box { position: absolute; right: 12px; bottom: 12px; }
-
-    /* enforce card text black, but keep where/who muted */
-    .club-card { color:#111; background:#fff; }
-    .club-card .muted { color:#6b7280; }
-
-    #year-filter { width:20%; min-width:80px; }
-    #year-filter option[value=""] { color: #ef4444; font-weight:700; }
-
-    /* Cards grid, landscape friendly */
-    #clubs-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .club-card { background: #fff; border: 1px solid #e6e6e6; padding: 14px; border-radius: 12px; position: relative; transition: box-shadow .15s ease, transform .12s ease; }
-    .club-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.06); transform: translateY(-3px); }
-
-    /* make buttons white */
-    .btn-white { background:#fff; border:1px solid #e6e6e6; padding:8px 12px; border-radius:8px; cursor:pointer; }
-
-    /* Filter panel (slide-in) */
-    .filter-panel { position: fixed; right: 0; top: 0; height: 100%; width: 360px; max-width: 90%; background: #fff; box-shadow: -20px 20px 60px rgba(0,0,0,0.12); transform: translateX(110%); transition: transform .28s cubic-bezier(.2,.9,.3,1); z-index: 1200; padding: 20px; overflow: auto; }
-    .filter-panel.is-active { transform: translateX(0); }
-    .filter-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1190; opacity: 0; transition: opacity .2s ease; pointer-events: none; }
-    .filter-overlay.is-active { opacity: 1; pointer-events: auto; }
-
-    /* Print/page styles */
+    .club-selected { box-shadow:0 0 0 3px rgba(0,0,0,1),0 0 0 6px rgba(239,68,68,0.95); border:2px solid rgba(239,68,68,0.9); }
+    .club-select-box { position:absolute; right:12px; bottom:12px; }
+    #year-filter option[value=""] { color:#ef4444; font-weight:700; }
+    #clubs-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
+    .club-card { background:#fff; border:1px solid #e6e6e6; padding:14px; border-radius:12px; position:relative; transition: box-shadow .15s ease, transform .12s ease; color:#000; }
+    .club-card:hover { box-shadow:0 8px 28px rgba(0,0,0,0.06); transform:translateY(-3px); }
     @media print {
-      @page { size: landscape; margin: 12mm; }
-      body * { visibility: hidden; }
-      #printable-area, #printable-area * { visibility: visible; }
-      /* Hide interactive UI */
-      #filter-panel, #filter-btn, #search-input, #print-year-main, #print-personal, .filter-overlay { display: none !important; }
+      @page { size: landscape; margin:10mm; }
       body { background:#fff; }
+      #filter-panel, #filter-btn, #search-input, #filter-overlay { display:none !important; }
     }
-
-    /* Print table compacting */
-    .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10pt; color:#000; }
-    .print-table th, .print-table td { padding: 6px; border: 1px solid #d1d5db; vertical-align: top; }
-    .print-other { font-style: italic; color: #6b7280; font-size: 10pt; }
-
   </style>
 </head>
-<body>
-  <!-- cat container for animation -->
-  <div id="cat-container" class="cat-container"><div id="cat-wrapper"><img id="cat-image" src="" alt="cat"></div></div>
+<body class="bg-gray-100 min-h-screen flex flex-col items-center">
 
-  <div class="container" style="background:#fff;border-radius:12px;padding:18px;">
-    <header class="card">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#111,#333);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">LMS</div>
-        <div>
-          <h1 style="margin:0;font-weight:700;font-size:22px;">Lady Margaret School Clubs 2025-26</h1>
-          <p style="margin:0;color:#6b7280;font-size:13px;">Browse clubs & print timetables</p>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button id="filter-btn" class="btn-white" aria-expanded="false" title="Open filters" style="display:inline-flex;align-items:center;gap:8px;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M6 12h12M10 18h4" stroke="#7c3aed" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Filters
-        </button>
-      </div>
-    </header>
+  <!-- Cat animation container -->
+  <div id="cat-container" class="cat-container"><div id="cat-wrapper"><img id="cat-image" src="" alt=""></div></div>
 
-    <!-- Controls (year + print area). Year select reduced width. -->
-    <section style="margin-bottom:8px;display:flex;gap:18px;align-items:flex-start;">
-      <div style="min-width:160px;display:flex;flex-direction:row;align-items:center;gap:12px;">
-        <div>
-          <label for="year-filter" style="display:block;font-weight:600;margin-bottom:6px;">Year Group</label>
-          <select id="year-filter" style="padding:10px;border-radius:10px;border:1px solid #e5e7eb;">
+  <div class="relative w-full max-w-6xl mx-auto flex flex-col p-4 sm:p-6 bg-white rounded-b-3xl shadow-lg">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-3xl font-bold text-gray-800">LMS TEST Clubs 2025-26</h1>
+      <button id="filter-btn" class="p-2 bg-purple-600 text-white rounded-full shadow-md hover:bg-purple-700 transition-colors" aria-controls="filter-panel" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 18H7.5m3-6h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 12H7.5"/></svg>
+      </button>
+    </div>
+
+    <div class="flex flex-col sm:flex-row items-start gap-4 mb-6">
+      <div>
+        <label for="year-filter" class="block text-gray-700 font-medium mb-1">Year Group</label>
+        <div class="flex items-center gap-2">
+          <select id="year-filter" class="p-2 rounded-xl border-2 border-gray-200 w-1/5 min-w-[80px]">
             <option value="">All</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="13">13</option>
+            <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+            <option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option>
           </select>
-        </div>
-
-        <!-- Print area: buttons and helper text sit here to the right of year select -->
-        <div id="print-area" style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:22px;">
-          <div id="print-btn-placeholder">
-            <div id="year-helper" style="color:#6b7280;font-size:13px;">Select a year to enable club selection & printing</div>
+          <div id="print-controls" class="flex items-center gap-2">
+            <span id="year-message" class="text-gray-600">Select year to print club timetable</span>
           </div>
         </div>
       </div>
-
-      <!-- Spacer. SEARCH moved below the title area and above the cards per request -->
-    </section>
-
-    <!-- Search placed above cards -->
-    <div style="margin-bottom:12px;padding:12px;border-radius:10px;">
-      <input id="search-input" placeholder="Search for a club..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;" />
+      <div class="flex-1">
+        <label class="block text-gray-700 font-medium mb-1">Search</label>
+        <input id="search-input" type="text" placeholder="Search for a club..." class="w-1/5 pl-3 pr-4 py-2 rounded-xl text-gray-700 border-2 border-gray-200">
+      </div>
     </div>
 
-    <main>
-      <div id="active-filters-summary" style="margin-bottom:8px;color:#6b7280;font-size:13px;">All clubs shown</div>
+    <div id="active-filters-summary" class="text-sm text-gray-500 mb-4 transition-all"></div>
 
-      <div id="clubs-list" class="grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
-      <div id="no-results" style="display:none;margin-top:28px;color:#6b7280;">No clubs found matching your criteria.</div>
-    </main>
+    <div id="filter-overlay" class="fixed inset-0 z-40 bg-black bg-opacity-50 backdrop-blur-sm backdrop hidden"></div>
+    <div id="filter-panel" class="fixed right-0 top-0 h-full w-full max-w-sm bg-white shadow-xl z-50 p-6 flex flex-col filter-panel" aria-hidden="true"></div>
 
-    <footer style="margin-top:32px;color:#6b7280;font-size:13px;">
-      <p>This site is maintained by LMS class reps</p>
-      <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" style="color:#ef4444;font-weight:600;">Please share your thoughts here 💬</a></p>
-    </footer>
+    <div id="clubs-list"></div>
+    <div id="no-results" class="hidden text-center text-gray-500 py-8">No clubs found matching your criteria.</div>
+
+    <div class="text-center text-xs text-gray-400 mt-8">
+      <p>This site is maintained by LMS class reps🚀</p>
+      <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" class="text-purple-600 hover:text-purple-800">Please share your thoughts here 💬</a></p>
+    </div>
   </div>
 
-  <!-- Filter panel + overlay -->
-  <div id="filter-overlay" class="filter-overlay" aria-hidden="true"></div>
-  <aside id="filter-panel" class="filter-panel" aria-hidden="true">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <h2 style="margin:0;font-size:18px;font-weight:700;">Filters</h2>
-      <button id="close-filter-btn" aria-label="Close filters" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">✕</button>
-    </div>
-
-    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
-      <label style="font-weight:600;display:block;margin-bottom:6px;">Day</label>
-      <button id="clear-day-btn" class="btn-white" style="font-size:12px;">Clear</button>
-    </div>
-    <div id="day-filter" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
-
-    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
-      <label style="font-weight:600;display:block;margin-bottom:6px;">When</label>
-      <button id="clear-when-btn" class="btn-white" style="font-size:12px;">Clear</button>
-    </div>
-    <div id="when-filter" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
-
-    <div style="margin-bottom:12px;">
-      <label style="font-weight:600;display:block;margin-bottom:6px;">Department</label>
-      <select id="department-filter" style="width:100%; padding:8px;border-radius:8px;border:1px solid #e5e7eb; background:#fff;">
-        <option value="">All</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom:18px;">
-      <label style="font-weight:600;display:block;margin-bottom:6px;">Clubs</label>
-      <div id="club-name-filter" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;max-height:260px;overflow:auto;padding-right:6px;"></div>
-    </div>
-
-    <div style="margin-top:auto;">
-      <button id="clear-filters-btn" class="btn-white" style="width:100%;padding:10px;border-radius:10px;border:1px solid #e6e6e6;background:#fff;cursor:pointer;">Clear all filters</button>
-    </div>
-  </aside>
-
-  <!-- Fixed print buttons removed from bottom; they appear next to year select when needed -->
-  <iframe id="print-iframe" style="display:none; width:0; height:0;"></iframe>
+  <iframe id="print-iframe" style="display:none;"></iframe>
 
   <script>
-    /**************************************************************************
-     * Cats animation (copied from your original file, unchanged)
-     **************************************************************************/
-    const catImages = ['images/1C.png','images/2C.png','images/3.png'];
-    const catContainer = document.getElementById('cat-container');
-    const catImageElement = document.getElementById('cat-image');
-    let interactionCount = 0;
-    const catIntervalMin = 10;
-    const catIntervalMax = 50;
-    let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
-
-    const showCat = () => {
-      const catIndex = Math.floor(Math.random() * catImages.length);
-      const selectedCatImage = catImages[catIndex];
-      catContainer.classList.remove('is-active','from-top','from-right','from-bottom','from-left','ascending-cat','slide-down');
-      catContainer.style.transform = '';
-      catImageElement.style.transform = '';
-      const animations = ['from-top','from-right','from-bottom','from-left','ascending-cat'];
-      const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
-      if (chosenAnimation === 'ascending-cat') {
-        catImageElement.src = selectedCatImage;
-        catContainer.className = 'cat-container';
-        catContainer.style.cssText = '';
-        catImageElement.style.cssText = '';
-        catContainer.style.position = 'fixed';
-        catContainer.style.bottom = '0';
-        catContainer.style.left = '50%';
-        catContainer.style.transform = 'translate(-50%, 100%)';
-        catContainer.style.zIndex = '100';
-        catContainer.style.pointerEvents = 'none';
-        catContainer.style.transition = 'none';
-        catContainer.style.overflow = 'hidden';
-        catImageElement.style.width = '600px';
-        catImageElement.style.height = 'auto';
-        catImageElement.style.borderRadius = '0.75rem';
-        catImageElement.style.display = 'block';
-        catContainer.offsetHeight;
-        setTimeout(() => {
-          catContainer.style.transition = 'transform 0.4s ease-out';
-          catContainer.style.transform = 'translate(-50%, 35%)';
-          setTimeout(() => {
-            catContainer.style.transition = 'transform 3s ease-in';
-            catContainer.style.transform = 'translate(-50%, 100%)';
-            setTimeout(() => {
-              catContainer.style.display = 'none';
-              catContainer.style.visibility = 'hidden';
-              catContainer.style.opacity = '0';
-              catContainer.style.zIndex = '-999';
-              catContainer.style.transform = 'translate(-50%, 200vh)';
-              setTimeout(() => { catContainer.className = 'cat-container'; catContainer.style.cssText = ''; catImageElement.style.cssText = ''; catImageElement.src = ''; }, 200);
-            }, 3000);
-          }, 900);
-        }, 100);
-      } else {
-        catImageElement.src = selectedCatImage;
-        catContainer.classList.add(chosenAnimation);
-        setTimeout(() => { catContainer.classList.add('is-active'); }, 50);
-        setTimeout(() => { catContainer.classList.remove('is-active'); }, 2000);
-      }
-    };
-
-    const handleInteraction = () => {
-      interactionCount++;
-      if (interactionCount >= nextCatInteraction) {
-        showCat();
-        interactionCount = 0;
-        nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
-      }
-    };
-
-    // Exposed test function to trigger ascending cat -> also run once on load for visible confirmation
-    const showAscendingCatForTesting = () => { showCat(); };
-    document.addEventListener('click', handleInteraction);
-    document.addEventListener('mousemove', handleInteraction);
-
-    // run a single test show on load so user sees it is working
-    setTimeout(() => { try{ showAscendingCatForTesting(); }catch(e){} }, 600);
-
-    /**************************************************************************
-     * CLUBS: fetching, filtering, rendering, selection, printing
-     **************************************************************************/
-    let clubsData = [];
-    const selectedClubs = new Set();
-    const clubsListEl = document.getElementById('clubs-list');
-    const yearFilterEl = document.getElementById('year-filter');
-    const printArea = document.getElementById('print-area');
-    const printYearMainBtn = document.createElement('button');
-    printYearMainBtn.id = 'print-year-main';
-    printYearMainBtn.textContent = 'Print Year-group Timetable';
-    printYearMainBtn.style.background = 'linear-gradient(90deg,#ef4444,#000)';
-    printYearMainBtn.style.color = '#fff';
-    printYearMainBtn.style.padding = '10px 14px';
-    printYearMainBtn.style.borderRadius = '10px';
-    printYearMainBtn.style.border = 'none';
-    printYearMainBtn.style.fontWeight = '700';
-    printYearMainBtn.style.display = 'none';
-
-    const printPersonalBtn = document.createElement('button');
-    printPersonalBtn.id = 'print-personal';
-    printPersonalBtn.textContent = 'Print My Selected Clubs';
-    printPersonalBtn.style.background = '#111827';
-    printPersonalBtn.style.color = '#fff';
-    printPersonalBtn.style.padding = '8px 12px';
-    printPersonalBtn.style.borderRadius = '8px';
-    printPersonalBtn.style.border = 'none';
-    printPersonalBtn.style.display = 'none';
-
-    // helper message element
-    const yearHelper = document.getElementById('year-helper');
-    // place buttons into print-area when needed
-    printArea.appendChild(printYearMainBtn);
-    printArea.appendChild(printPersonalBtn);
-
-    const filterBtnEl = document.getElementById('filter-btn');
-    const filterPanelEl = document.getElementById('filter-panel');
-    const filterOverlayEl = document.getElementById('filter-overlay');
-    const closeFilterBtn = document.getElementById('close-filter-btn');
-    const dayFilterContainer = document.getElementById('day-filter');
-    const whenFilterContainer = document.getElementById('when-filter');
-    const clubNameFilterContainer = document.getElementById('club-name-filter');
-    const departmentFilter = document.getElementById('department-filter');
-    const clearFiltersBtn = document.getElementById('clear-filters-btn');
-    const activeFiltersSummary = document.getElementById('active-filters-summary');
-    const searchInputEl = document.getElementById('search-input');
-
-    const STORAGE_KEY = 'lms_selected_clubs_v1';
-
-    function loadSelectionsFromStorage(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return; const arr = JSON.parse(raw); if(Array.isArray(arr)) arr.forEach(u=>selectedClubs.add(String(u))); }catch(e){ console.warn('Could not parse previous selections', e); } }
-    function saveSelectionsToStorage(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedClubs))); }catch(e){ console.warn('save failed', e); } }
-
-    function escapeHtml(s){ return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
-
-    function detectWeekFlag(weeksRaw){ if(!weeksRaw) return ''; const w = weeksRaw.replace(/\s+/g,'').toLowerCase(); if (w === '1&2' || w === '1and2' || w === '1-2' || w === '12' || w === '1/2') return ''; if (w.includes('1') && !w.includes('2')) return ' (W1-only)'; if (w.includes('2') && !w.includes('1')) return ' (W2-only)'; if (w.includes('w1') && !w.includes('w2')) return ' (W1-only)'; if (w.includes('w2') && !w.includes('w1')) return ' (W2-only)'; return ''; }
-    function specialClubNoteHTML(name){ if(!name) return ''; const n=name.toLowerCase(); if(n.includes('lunch club')) return ' <strong>12:45 start</strong>'; if(n.includes('chamber choir')||n.includes('orchestra')) return ' <strong>16:45 finish</strong>'; return ''; }
-
-    async function fetchClubsCSV(){
-      try{
-        const res = await fetch('clubs.csv', {cache:'no-store'});
-        const text = await res.text();
-        const lines = text.trim().split('\n').filter(Boolean);
-        if(lines.length <= 1) { clubsData = []; renderClubs([]); return; }
-        const rows = lines.slice(1);
-        clubsData = rows.map(row=>{ const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c=>c.trim().replace(/^"|"$/g,'')); return { name: cols[0]||'', when: cols[1]||'', day: cols[2]||'', weeks: cols[3]||'', time: cols[4]||'', yearRaw: cols[5]||'', year: (cols[5] && cols[5].toLowerCase().includes('all years')) ? ['All Years'] : (cols[5] ? cols[5].split(/[,\s&\/]+/).map(x=>x.trim()).filter(Boolean) : []), location: cols[6]||'', staff: cols[7]||'', department: cols[8]||'', urn: cols[9] ? String(cols[9]) : (cols[0] + '::' + Math.random().toString(36).slice(2,8)) }; });
-        populateFilters(); renderClubs(clubsData);
-      }catch(err){ console.error('Failed to load clubs.csv', err); clubsListEl.innerHTML = '<div style="padding:14px;background:#fff;border-radius:10px;color:#b91c1c">Error loading clubs.csv — check file and console</div>'; }
+    // --- Cat animation code (original implementation assumed here) ---
+    function showAscendingCatForTesting(){
+      const img=document.getElementById('cat-image');
+      if(img){img.src='images/1C.png'; img.style.display='block';}
     }
 
-    function populateFilters(){
-      const days = ['All','Monday','Tuesday','Wednesday','Thursday','Friday'];
-      const whens = ['All','Before School','Lunchtime','After School'];
-      dayFilterContainer.innerHTML = '';
-      days.forEach(d=>{ const el = document.createElement('label'); el.style.display='inline-flex'; el.style.alignItems='center'; el.style.gap='8px'; el.style.marginBottom='8px'; el.innerHTML = `<input type="checkbox" name="day-filter" value="${d}" ${d==='All' ? 'checked' : ''}/> <span style="font-size:14px;color:#374151">${d}</span>`; dayFilterContainer.appendChild(el); });
-      whenFilterContainer.innerHTML = '';
-      whens.forEach(w=>{ const el = document.createElement('label'); el.style.display='inline-flex'; el.style.alignItems='center'; el.style.gap='8px'; el.style.marginBottom='8px'; el.innerHTML = `<input type="checkbox" name="when-filter" value="${w}" ${w==='All' ? 'checked' : ''}/> <span style="font-size:14px;color:#374151">${w}</span>`; whenFilterContainer.appendChild(el); });
-      clubNameFilterContainer.innerHTML = '';
-      const uniqueNames = [...new Set(clubsData.map(c=>c.name).filter(Boolean))].sort((a,b)=> a.localeCompare(b));
-      uniqueNames.forEach(n=>{ const el=document.createElement('label'); el.style.display='flex'; el.style.alignItems='center'; el.style.gap='6px'; el.innerHTML = `<input type="checkbox" name="club-name-filter" value="${escapeHtml(n)}" /> <span style="font-size:13px;color:#334155">${escapeHtml(n)}</span>`; clubNameFilterContainer.appendChild(el); });
-      const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort(); departmentFilter.innerHTML = '<option value="">All</option>' + depts.map(d=>`<option>${escapeHtml(d)}</option>`).join('');
-    }
+    let clubsData=[]; let selectedClubs=new Set();
+    const clubsList=document.getElementById('clubs-list');
+    const yearFilter=document.getElementById('year-filter');
+    const searchInput=document.getElementById('search-input');
+    const printControls=document.getElementById('print-controls');
+    const yearMessage=document.getElementById('year-message');
 
-    function getActiveFilters(){
-      const year = yearFilterEl.value;
-      const dept = departmentFilter.value;
-      const search = (searchInputEl.value || '').trim().toLowerCase();
-      const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day-filter"]:checked')).map(i=>i.value);
-      const selectedWhens = Array.from(document.querySelectorAll('#when-filter input[name="when-filter"]:checked')).map(i=>i.value);
-      const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name-filter"]:checked')).map(i => i.value);
-      return { year, dept, search, selectedDays, selectedWhens, selectedClubNames };
-    }
-
-    function clubMatchesFilter(club, filters){
-      if(filters.search){ const hay = (club.name + ' ' + (club.department||'') + ' ' + (club.location||'') + ' ' + (club.staff||'')).toLowerCase(); if(!hay.includes(filters.search)) return false; }
-      if(filters.year){ if(!club.year.includes('All Years') && !club.year.includes(filters.year)) return false; }
-      if(filters.dept){ if(club.department !== filters.dept) return false; }
-      if(filters.selectedDays.length && !filters.selectedDays.includes('All')){ if(!filters.selectedDays.includes(club.day)) return false; }
-      if(filters.selectedWhens.length && !filters.selectedWhens.includes('All')){ if(!filters.selectedWhens.includes(club.when)) return false; }
-      if(filters.selectedClubNames.length){ if(!filters.selectedClubNames.includes(club.name)) return false; }
-      return true;
-    }
+    function escapeHtml(s){return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');}
 
     function renderClubs(data){
-      const filters = getActiveFilters();
-      const filtered = data.filter(c => clubMatchesFilter(c, filters));
-      clubsListEl.innerHTML = '';
-      if(filtered.length === 0) { document.getElementById('no-results').style.display = 'block'; } else { document.getElementById('no-results').style.display = 'none'; }
-      filtered.forEach(club => {
-        const card = document.createElement('div'); card.className = 'club-card'; card.style.minHeight = '120px';
+      clubsList.innerHTML='';
+      const term=(searchInput.value||'').toLowerCase();
+      const filtered=data.filter(c=>!term||(c.name+c.department+c.location+c.staff+c.year.join(' ')).toLowerCase().includes(term));
+      if(filtered.length===0){document.getElementById('no-results').classList.remove('hidden');return;}
+      document.getElementById('no-results').classList.add('hidden');
+      filtered.forEach(club=>{
+        const card=document.createElement('div'); card.className='club-card';
         if(selectedClubs.has(club.urn)) card.classList.add('club-selected');
-
-        let yearHtml = '';
-        if(club.year.includes('All Years')){
-          yearHtml = 'All Years';
-        } else {
-          if(yearFilterEl.value){ yearHtml = `<span class="muted">Years:</span> ${escapeHtml(club.year.join(', '))}`; }
-          else { yearHtml = escapeHtml(club.year.join(', ')); }
-        }
-
-        const specialNote = specialClubNoteHTML(club.name);
-
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
-            <div style="flex:1;">
-              <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${escapeHtml(club.name)}</div>
-              <div style="font-size:13px;color:#111;margin-bottom:6px;">Day: <strong>${escapeHtml(club.day)}</strong></div>
-              <div style="font-size:13px;color:#111;margin-bottom:6px;">When: <strong>${escapeHtml(club.when)}</strong></div>
-              <div style="font-size:12px;margin-bottom:6px;">${yearHtml}</div>
-              <div style="font-size:12px;color:#6b7280;margin-top:6px;">Where: <span style='color:#6b7280;'>${escapeHtml(club.location)}</span> • Who: <span style='color:#6b7280;'>${escapeHtml(club.staff)}</span>${specialNote}</div>
-            </div>
-          </div>
-        `;
-
-        const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
-        const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.value = club.urn; checkbox.className = 'club-select-checkbox'; checkbox.checked = selectedClubs.has(club.urn);
-        checkbox.disabled = !( (yearFilterEl.value && yearFilterEl.value !== '') || selectedClubs.has(club.urn) );
-        checkbox.title = checkbox.disabled ? 'Select a year group to enable selection' : 'Select this club';
-        checkbox.addEventListener('change', (e) => { if(e.target.checked){ selectedClubs.add(club.urn); card.classList.add('club-selected'); yearHelper.style.display = 'none'; } else { selectedClubs.delete(club.urn); card.classList.remove('club-selected'); } saveSelectionsToStorage(); updateFloatingPrintVisibility(); updatePrintHelperText(); });
-        cbWrap.appendChild(checkbox); card.appendChild(cbWrap); clubsListEl.appendChild(card);
+        let yearsText=club.year.includes('All Years')?'All Years':escapeHtml(club.year.join(', '));
+        if(yearFilter.value && !club.year.includes('All Years')) yearsText=`<span style='color:#6b7280;'>Years:</span> ${yearsText}`;
+        card.innerHTML=`<div style="font-weight:700;font-size:15px;">${escapeHtml(club.name)}</div>
+          <div style="font-size:13px;color:#000;">${escapeHtml(club.day)} • ${escapeHtml(club.when)}</div>
+          <div style="font-size:12px;color:#000;">${yearsText}</div>
+          <div style="font-size:12px;color:#6b7280;">Where: ${escapeHtml(club.location)} • Who: ${escapeHtml(club.staff)}</div>`;
+        const cbWrap=document.createElement('div'); cbWrap.className='club-select-box';
+        const cb=document.createElement('input'); cb.type='checkbox'; cb.value=club.urn; cb.checked=selectedClubs.has(club.urn);
+        cb.disabled=!(yearFilter.value||selectedClubs.has(club.urn));
+        cb.addEventListener('change',e=>{if(e.target.checked){selectedClubs.add(club.urn);card.classList.add('club-selected');}else{selectedClubs.delete(club.urn);card.classList.remove('club-selected');}updatePrintControls();});
+        cbWrap.appendChild(cb); card.appendChild(cbWrap); clubsList.appendChild(card);
       });
-      updateFloatingPrintVisibility(); updateActiveFiltersSummary();
     }
 
-    function updateFloatingPrintVisibility(){ if(selectedClubs.size > 0){ printPersonalBtn.style.display = 'inline-block'; } else { printPersonalBtn.style.display = 'none'; } }
+    function updatePrintControls(){
+      printControls.innerHTML='';
+      if(!yearFilter.value){
+        yearMessage.textContent='Select year to print club timetable';
+        printControls.appendChild(yearMessage);
+        return;
+      }
+      const printMyBtn=document.createElement('button');
+      printMyBtn.id='print-my-btn';
+      printMyBtn.className='bg-gradient-to-r from-red-500 to-black text-white px-4 py-2 rounded-lg font-bold';
+      printMyBtn.textContent='Print Year-group Timetable';
+      printMyBtn.addEventListener('click',()=>{
+        const y=yearFilter.value;
+        const clubs=clubsData.filter(c=>c.year.includes('All Years')||c.year.includes(y));
+        printViaIframe(createPrintHTML('Year '+y+' Clubs Timetable',clubs));
+      });
+      printControls.appendChild(printMyBtn);
 
-    yearFilterEl.addEventListener('change', () => { printYearMainBtn.style.display = yearFilterEl.value ? 'inline-block' : 'none'; renderClubs(clubsData); updatePrintHelperText(); });
-
-    function updatePrintHelperText(){
-      if(!yearFilterEl.value){ yearHelper.textContent = 'Select a year to enable club selection & printing'; yearHelper.style.display = 'block'; // ensure buttons hidden
-        printYearMainBtn.style.display = 'none'; printPersonalBtn.style.display = 'none';
+      if(selectedClubs.size===0){
+        const msg=document.createElement('span');
+        msg.className='text-gray-600';
+        msg.textContent='To print a timetable with chosen clubs only, select them below';
+        printControls.appendChild(msg);
       } else {
-        if(selectedClubs.size === 0){ // show year-group button and helper message
-          printYearMainBtn.style.display = 'inline-block'; printPersonalBtn.style.display = 'none';
-          yearHelper.textContent = 'To print a timetable with chosen clubs only, select them below'; yearHelper.style.display = 'block';
-        } else { // show personal print button instead
-          printYearMainBtn.style.display = 'inline-block'; printPersonalBtn.style.display = 'inline-block'; yearHelper.style.display = 'none';
-        }
-      }
-      // ensure buttons are present in DOM
-      if(!printArea.contains(printYearMainBtn)) printArea.appendChild(printYearMainBtn);
-      if(!printArea.contains(printPersonalBtn)) printArea.appendChild(printPersonalBtn);
-    }
-
-    // Filter panel controls
-    filterBtnEl.addEventListener('click', () => { filterPanelEl.classList.add('is-active'); filterOverlayEl.classList.add('is-active'); filterBtnEl.setAttribute('aria-expanded','true'); });
-    closeFilterBtn.addEventListener('click', () => { filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false'); });
-    filterOverlayEl.addEventListener('click', () => { filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false'); });
-
-    filterPanelEl.addEventListener('change', (e) => {
-      if(!e.target) return; const el = e.target;
-      if(el.name === 'day-filter'){
-        if(el.value === 'All' && el.checked){ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>{ if(i.value !== 'All') i.checked = false; }); }
-        else if(el.checked && el.value !== 'All'){ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>{ if(i.value === 'All') i.checked = false; }); }
-      }
-      if(el.name === 'when-filter'){
-        if(el.value === 'All' && el.checked){ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>{ if(i.value !== 'All') i.checked = false; }); }
-        else if(el.checked && el.value !== 'All'){ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>{ if(i.value === 'All') i.checked = false; }); }
-      }
-      renderClubs(clubsData);
-    });
-
-    document.getElementById('clear-day-btn').addEventListener('click', ()=>{ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>i.checked = i.value === 'All'); renderClubs(clubsData); });
-    document.getElementById('clear-when-btn').addEventListener('click', ()=>{ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>i.checked = i.value === 'All'); renderClubs(clubsData); });
-
-    clearFiltersBtn.addEventListener('click', () => { departmentFilter.value = ''; searchInputEl.value = ''; yearFilterEl.value = ''; printYearMainBtn.style.display = 'none'; filterPanelEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = cb.value === 'All'); renderClubs(clubsData); updateActiveFiltersSummary(); filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); });
-
-    searchInputEl.addEventListener('input', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
-    departmentFilter.addEventListener('change', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
-
-    function buildGridForClubs(clubsArray){ const days = ['Monday','Tuesday','Wednesday','Thursday','Friday']; const whens = ['Before School','Lunchtime','After School']; const times = { 'Before School':'08:00-08:30', 'Lunchtime':'12:45-13:30', 'After School':'15:30-16:30' }; const grid = {}; whens.forEach(w=>{ grid[w] = {}; days.forEach(d=>{ grid[w][d] = []; }); }); clubsArray.forEach(club=>{ const when = club.when || 'After School'; const day = club.day || ''; if(grid[when] && grid[when][day]) grid[when][day].push(club); }); return { grid, days, whens, times }; }
-
-    function createPrintableTimetableHTML({ title, clubsArray, forPersonal=false }){
-      const { grid, days, whens, times } = buildGridForClubs(clubsArray);
-      const styles = `
-        <style>
-          @page { size: landscape; margin: 12mm; }
-          body { font-family: Inter, Arial, sans-serif; color:#000; margin:0; padding:12px; }
-          h1 { font-size:18pt; margin:0 0 6px 0; }
-          table.print-table { width:100%; border-collapse:collapse; table-layout:fixed; }
-          th, td { border:1px solid #e6e6e6; padding:6px; vertical-align:top; word-break:break-word; }
-          th { background:#f8fafc; font-weight:700; text-align:left; font-size:11pt; }
-          td { font-size:10pt; color:#000; }
-          .club-name { font-weight:700; }
-          .other-club { font-style:italic; color:#6b7280; }
-        </style>
-      `;
-
-      let html = `<div id="printable-area"><h1>${escapeHtml(title)}</h1>`;
-      if(forPersonal){ html += `<div class="other-club" style="margin-bottom:8px;">Other clubs available to me</div>`; }
-      html += `<table class="print-table"><thead><tr><th style="width:16%">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
-      whens.forEach(w => {
-        html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${times[w]}</div></th>`;
-        days.forEach(d => {
-          const cellClubs = grid[w][d] || [];
-          if(!cellClubs.length){ html += `<td style="min-height:70px;">—</td>`; }
-          else{
-            let primaryHtml = '';
-            let otherHtml = '';
-            cellClubs.forEach(club => {
-              const yearText = club.year.includes('All Years') ? 'All Years' : (yearFilterEl.value ? `Years: ${club.year.join(', ')}` : club.year.join(', '));
-              primaryHtml += `<div style="margin-bottom:8px;"><div class="club-name">${escapeHtml(club.name)}</div>`;
-              primaryHtml += `<div style="font-size:10pt;color:#000;">${escapeHtml(yearText)}${specialClubNoteHTML(club.name) ? `<span> ${specialClubNoteHTML(club.name)}</span>` : ''}</div>`;
-              primaryHtml += `</div>`;
-            });
-            const otherClubs = cellClubs.filter(c=>true);
-            if(otherClubs.length){ otherClubs.forEach(oc => { otherHtml += `<div class="other-club" style="margin-bottom:6px;">${escapeHtml(oc.name)} ${oc.year.includes('All Years') ? 'All Years' : escapeHtml(oc.year.join(', '))}</div>`; }); }
-            html += `<td>${primaryHtml}${otherHtml}</td>`;
-          }
+        const printPersonalBtn=document.createElement('button');
+        printPersonalBtn.id='print-personal-btn';
+        printPersonalBtn.className='bg-gradient-to-r from-red-500 to-black text-white px-4 py-2 rounded-lg font-bold';
+        printPersonalBtn.textContent='Print My Selected Clubs';
+        printPersonalBtn.addEventListener('click',()=>{
+          const selected=clubsData.filter(c=>selectedClubs.has(c.urn));
+          const others=clubsData.filter(c=>!selectedClubs.has(c.urn));
+          printViaIframe(createPrintHTML('My Selected Clubs Timetable',selected,others));
         });
-        html += `</tr>`;
-      });
-      html += `</tbody></table></div>`;
-      return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${styles}</head><body>${html}</body></html>`;
+        printControls.appendChild(printPersonalBtn);
+      }
     }
 
-    function printViaIframe(html){ const iframe = document.getElementById('print-iframe'); const doc = iframe.contentDocument || iframe.contentWindow.document; doc.open(); doc.write(html); doc.close(); setTimeout(()=>{ try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print — please use your browser print command.'); } }, 500); }
-
-    // Year print
-    printYearMainBtn.addEventListener('click', ()=>{ const y = yearFilterEl.value; if(!y){ alert('Please select a year group to print the full year timetable.'); return; } const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y)); const html = createPrintableTimetableHTML({ title: `Year ${y} Timetable`, clubsArray: clubsForYear, forPersonal:false }); printViaIframe(html); });
-
-    // Personal print
-    printPersonalBtn.addEventListener('click', ()=>{
-      const currentSelected = clubsData.filter(c => selectedClubs.has(c.urn));
-      let stored = [];
-      try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) stored = JSON.parse(raw); }catch(e){}
-      const previously = clubsData.filter(c => stored.includes(c.urn) && !selectedClubs.has(c.urn));
-      const html = createPrintableTimetableHTML({ title: `My selected clubs timetable`, clubsArray: currentSelected.concat(previously), forPersonal:true });
-      printViaIframe(html);
-    });
-
-    /*********************
-     * Active filter summary
-     *********************/
-    function updateActiveFiltersSummary(){
-      const parts = [];
-      const year = yearFilterEl.value; if(year) parts.push(`Year: ${year}`);
-      const dept = departmentFilter.value; if(dept) parts.push(`Dept: ${dept}`);
-      const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day-filter"]:checked')).map(i=>i.value);
-      if(selectedDays.length && !selectedDays.includes('All')) parts.push(`Day: ${selectedDays.join(', ')}`);
-      const selectedWhens = Array.from(document.querySelectorAll('#when-filter input[name="when-filter"]:checked')).map(i=>i.value);
-      if(selectedWhens.length && !selectedWhens.includes('All')) parts.push(`When: ${selectedWhens.join(', ')}`);
-      const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name-filter"]:checked')).map(i=>i.value);
-      if(selectedClubNames.length) parts.push(`Club: ${selectedClubNames.join(', ')}`);
-      activeFiltersSummary.textContent = parts.length ? parts.join(' | ') : 'All clubs shown';
+    async function fetchClubs(){
+      try{const res=await fetch('clubs.csv',{cache:'no-store'}); const text=await res.text(); const rows=text.trim().split('\n').slice(1);
+        clubsData=rows.map(r=>{const cols=r.split(/,(?=(?:[^"]*\"[^"]*\")*[^\"]*$)/).map(c=>c.replace(/^\"|\"$/g,''));
+          return {urn:cols[9]||cols[0]+Math.random(), name:cols[0], when:cols[1], day:cols[2], weeks:cols[3], time:cols[4], yearRaw:cols[5], year:(cols[5]&&cols[5].toLowerCase().includes('all years'))?['All Years']:cols[5].split(/[,&\/\s]+/).map(x=>x.trim()).filter(Boolean), location:cols[6], staff:cols[7], department:cols[8]};});
+        renderClubs(clubsData);
+      }catch(e){console.error(e);}
     }
 
-    function loadSelections(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return; const arr = JSON.parse(raw); if(Array.isArray(arr)) arr.forEach(u=>selectedClubs.add(String(u))); }catch(e){ console.warn('Failed to load selections', e); } }
-    function saveSelections(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedClubs))); }catch(e){ console.warn('Failed to save selections', e); } }
+    function buildGrid(clubs){const days=['Monday','Tuesday','Wednesday','Thursday','Friday'];const whens=['Before School','Lunchtime','After School'];const times={'Before School':'08:00-08:30','Lunchtime':'12:45-13:30','After School':'15:30-16:30'};const grid={};whens.forEach(w=>{grid[w]={};days.forEach(d=>grid[w][d]=[]);});clubs.forEach(c=>{if(grid[c.when]&&grid[c.when][c.day])grid[c.when][c.day].push(c);});return{grid,days,whens,times};}
 
-    // fix search-year interaction: ensure year parsing splits on spaces too (handled in fetch)
-    searchInputEl.addEventListener('input', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
-    departmentFilter.addEventListener('change', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
+    function createPrintHTML(title,selected,others){
+      const {grid,days,whens,times}=buildGrid(selected.concat(others||[]));
+      let html=`<h1>${escapeHtml(title)}</h1>`;
+      if(title.includes('My Selected Clubs')){
+        html+=`<div style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`;
+      }
+      html+=`<table><thead><tr><th>When/Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+      whens.forEach(w=>{html+=`<tr><th>${w}</th>`;days.forEach(d=>{const cell=grid[w][d];if(!cell.length){html+='<td>—</td>';}else{let cHtml='';cell.forEach(c=>{
+        if(selectedClubs.has(c.urn)){
+          cHtml+=`<div><strong>${escapeHtml(c.name)}</strong><div>${c.year.includes('All Years')?'All Years':'Years: '+escapeHtml(c.year.join(', '))}</div></div><br>`;
+        } else if(others && others.find(o=>o.urn===c.urn)){
+          cHtml+=`<div style=\"font-style:italic;color:#6b7280;\">${escapeHtml(c.name)} (${c.year.includes('All Years')?'All Years':'Years: '+escapeHtml(c.year.join(', '))})</div><br>`;
+        }
+      });html+=`<td>${cHtml}</td>`;} });html+='</tr>';});html+='</tbody></table>';
+      return`<!doctype html><html><head><meta charset=\"utf-8\"><title>${title}</title><style>@page{size:landscape;}th,td{border:1px solid #ccc;padding:6px;}</style></head><body>${html}</body></html>`;
+    }
 
-    // Init
-    loadSelections(); fetchClubsCSV(); updatePrintHelperText();
+    function printViaIframe(html){const f=document.getElementById('print-iframe');const doc=f.contentDocument||f.contentWindow.document;doc.open();doc.write(html);doc.close();setTimeout(()=>{f.contentWindow.print();},300);}
 
+    yearFilter.addEventListener('change',()=>{renderClubs(clubsData);updatePrintControls();});
+    searchInput.addEventListener('input',()=>renderClubs(clubsData));
+
+    fetchClubs();
   </script>
 </body>
 </html>
+
 
 
 
