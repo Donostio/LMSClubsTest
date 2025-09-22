@@ -1,86 +1,176 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>LMS Clubs</title>
-<link rel="icon" type="image/png" href="lms_logo.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
-<style>
-  body {
-    margin:0;
-    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-    background:#000;
-    background-image: repeating-linear-gradient(to right,#ef4444,#ef4444 2px,#000 2px,#000 24px);
-  }
-  .page {max-width:1180px;margin:28px auto;background:#fff;border-radius:12px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,0.25);}
-  header.top {display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  header.top h1{margin:0;font-size:22px;font-weight:700;color:#111;}
-  #year-filter{padding:10px;border-radius:10px;border:1px solid #e6e6e6;width:20%;min-width:84px;color:#ef4444;font-weight:600;}
-  #year-filter.filled{color:#111;}
-  #search-input{padding:10px;border-radius:10px;border:1px solid #e6e6e6;width:20%;min-width:200px;}
-  #clubs-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:12px;}
-  .club-card{position:relative;background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:14px;color:#111;transition:box-shadow .15s ease,transform .12s ease;}
-  .club-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,0.06);}
-  .muted{color:#6b7280;}
-  .club-select-box{position:absolute;right:12px;bottom:12px;}
-  .selected{box-shadow:0 0 0 3px rgba(0,0,0,1),0 0 0 6px rgba(239,68,68,0.95);border:2px solid rgba(239,68,68,0.9);}
-  .filter-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:60;}
-  .filter-panel{position:fixed;right:0;top:0;height:100%;width:360px;max-width:92%;background:#fff;z-index:70;transform:translateX(110%);transition:transform .28s;box-shadow:-20px 20px 60px rgba(0,0,0,0.12);padding:20px;overflow:auto;}
-  .filter-panel.open{transform:translateX(0);}
-  .clear-link{color:#7c3aed;cursor:pointer;font-size:13px;background:none;border:none;padding:0;}
-  #cat-container{position:fixed;z-index:120;pointer-events:none;bottom:0;left:50%;transform:translateX(-50%) translateY(110%);transition:transform 1s ease,opacity 1s ease;opacity:0;}
-  #cat-container.show{transform:translateX(-50%) translateY(0);opacity:1;}
-  #cat-image{width:160px;border-radius:.75rem;display:block;}
-  @media print{@page{size:landscape;margin:12mm;}body{background:#fff;}#filter-panel,#filter-btn,#search-input,.filter-overlay{display:none!important;}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LMS Clubs</title>
+  <link rel="icon" type="image/png" href="lms_logo.png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <style>
+    :root{--muted:#6b7280;--red:#ef4444;--black:#000;}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; -webkit-font-smoothing:antialiased;}
+    /* striped background visible left/right of white panel */
+    body {
+      background:#000;
+      background-image: repeating-linear-gradient(to right, var(--red), var(--red) 2px, #000 2px, #000 24px);
+    }
+
+    /* central white container */
+    .page {
+      max-width:1180px;
+      margin:28px auto;
+      background:#fff;
+      border-radius:12px;
+      padding:18px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.20);
+    }
+
+    header.top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
+    header.top h1 { margin:0; font-size:22px; font-weight:700; color:#111; }
+
+    /* Year select: 1/5 width on wide screens */
+    #year-filter {
+      padding:10px;
+      border-radius:10px;
+      border:1px solid #e6e6e6;
+      width:20%;
+      min-width:84px;
+      color:var(--red);
+      font-weight:600;
+    }
+    #year-filter.filled { color:#111; }
+
+    /* Print controls next to select */
+    .print-controls { display:flex; align-items:center; gap:8px; margin-top:6px; }
+
+    /* Search — placed below year group in same column; width 1/5 on wide screens */
+    #search-input {
+      padding:10px;
+      border-radius:10px;
+      border:1px solid #e6e6e6;
+      width:20%;
+      min-width:200px;
+    }
+
+    /* cards grid */
+    #clubs-list {
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap:14px;
+      margin-top:12px;
+    }
+    .club-card {
+      position:relative;
+      background:#fff;
+      border:1px solid #e6e6e6;
+      border-radius:12px;
+      padding:14px;
+      color:#111;
+      transition: box-shadow .15s ease, transform .12s ease;
+      min-height:120px;
+    }
+    .club-card:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(0,0,0,0.06); }
+    .muted { color:var(--muted); }
+    .club-select-box { position:absolute; right:12px; bottom:12px; }
+    .selected { box-shadow:0 0 0 3px rgba(0,0,0,1), 0 0 0 6px rgba(239,68,68,0.95); border:2px solid rgba(239,68,68,0.9); }
+
+    /* filter panel */
+    .filter-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:60; }
+    .filter-panel {
+      position:fixed; right:0; top:0; height:100%; width:360px; max-width:92%;
+      background:#fff; z-index:70; transform:translateX(110%); transition:transform .28s cubic-bezier(.2,.9,.3,1);
+      box-shadow:-20px 20px 60px rgba(0,0,0,0.12); padding:20px; overflow:auto;
+    }
+    .filter-panel.open { transform:translateX(0); }
+    .clear-link { color:#7c3aed; cursor:pointer; font-size:13px; background:none; border:none; padding:0; }
+
+    /* cat animation container */
+    #cat-container {
+      position:fixed; z-index:120; pointer-events:none;
+      left:50%; bottom:0; transform:translateX(-50%) translateY(120%);
+      transition: transform 0.9s cubic-bezier(.2,.9,.3,1), opacity .6s;
+      opacity:0;
+    }
+    #cat-container.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    #cat-image { width:160px; border-radius:.75rem; display:block; }
+
+    /* print styles used in generated HTML (not the page CSS) */
+    @media print {
+      @page { size: landscape; margin:12mm; }
+      body { background:#fff; }
+      #filter-panel, #filter-btn, #search-input, .filter-overlay { display:none !important; }
+      .page * { visibility: visible; }
+    }
+
+    /* responsive */
+    @media (max-width:720px){
+      #search-input, #year-filter { width:100%; }
+      .print-controls { flex-wrap:wrap; }
+    }
+  </style>
 </head>
 <body>
-  <!-- Cats -->
+  <!-- cat container -->
   <div id="cat-container"><img id="cat-image" src="" alt="cat"></div>
 
-  <div class="page">
+  <div class="page" role="main">
     <header class="top">
       <h1>Lady Margaret School — Clubs 2025-26</h1>
-      <button id="filter-btn" style="background:#7c3aed;color:#fff;padding:10px;border-radius:10px;border:none;cursor:pointer;">Filters</button>
+      <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false" style="background:#7c3aed;color:#fff;padding:10px;border-radius:10px;border:none;cursor:pointer;">Filters</button>
     </header>
 
-    <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-      <div>
-        <label for="year-filter" style="font-weight:600;display:block;margin-bottom:6px;">Year Group</label>
+    <section style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="min-width:260px;">
+        <label for="year-filter" style="display:block;font-weight:600;margin-bottom:6px;">Year Group</label>
         <div style="display:flex;align-items:center;gap:8px;">
-          <select id="year-filter">
+          <select id="year-filter" aria-label="Year group">
             <option value="">All</option>
             <option value="7">7</option><option value="8">8</option><option value="9">9</option>
             <option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option>
           </select>
-          <div id="print-controls"><span id="year-message" style="color:#6b7280;">Filter by year</span></div>
+
+          <div id="print-controls" class="print-controls">
+            <span id="year-message" style="color:var(--muted);margin-top:6px;">Filter by year</span>
+          </div>
         </div>
-        <div style="margin-top:10px;">
-          <label for="search-input" style="font-weight:600;display:block;margin-bottom:6px;">Search</label>
-          <input id="search-input" placeholder="Search for a club...">
+
+        <!-- Search below the Year Group -->
+        <div style="margin-top:12px;">
+          <label for="search-input" style="display:block;font-weight:600;margin-bottom:6px;">Search</label>
+          <input id="search-input" placeholder="Search for a club..." aria-label="Search clubs" />
         </div>
       </div>
+
       <div style="flex:1;align-self:flex-end;">
-        <div id="active-filters-summary" style="color:#6b7280;font-size:13px;">All clubs shown</div>
+        <div id="active-filters-summary" style="color:var(--muted);font-size:13px;">All clubs shown</div>
       </div>
-    </div>
+    </section>
 
-    <div id="clubs-list"></div>
-    <div id="no-results" style="display:none;color:#6b7280;text-align:center;padding:18px;">No clubs found matching your criteria.</div>
+    <main>
+      <div id="clubs-list" aria-live="polite"></div>
+      <div id="no-results" style="display:none;color:var(--muted);padding:18px;text-align:center;">No clubs found matching your criteria.</div>
+    </main>
 
-    <footer style="margin-top:26px;text-align:center;color:#6b7280;font-size:13px;">
-      <div>This site is maintained by LMS class reps 🚀🚀</div>
-      <div style="margin-top:6px;">Feedback: <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" style="color:#ef4444;">Please share your thoughts</a></div>
+    <footer style="margin-top:28px;color:var(--muted);font-size:13px;text-align:center;">
+      <div>This site is maintained by LMS class reps 🚀🚀🚀🚀</div>
+      <div style="margin-top:6px;">Feedback: <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red);">Please share your thoughts</a></div>
     </footer>
   </div>
 
-  <!-- Filter panel -->
-  <div id="filter-overlay" class="filter-overlay"></div>
-  <aside id="filter-panel" class="filter-panel">
-    <h2>Filters</h2>
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;"><strong>Day</strong><button id="clear-day" class="clear-link">Clear</button></div>
+  <!-- filter panel & overlay -->
+  <div id="filter-overlay" class="filter-overlay" aria-hidden="true"></div>
+
+  <aside id="filter-panel" class="filter-panel" aria-hidden="true" role="region" aria-label="Filters panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 style="margin:0;font-size:18px;">Filters</h2>
+      <button id="close-filter" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">✕</button>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Day</strong>
+        <button id="clear-day" class="clear-link">Clear</button>
+      </div>
       <div>
         <label><input type="checkbox" class="day-filter" value="All" checked> All</label><br>
         <label><input type="checkbox" class="day-filter" value="Monday"> Monday</label><br>
@@ -90,8 +180,12 @@
         <label><input type="checkbox" class="day-filter" value="Friday"> Friday</label>
       </div>
     </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;"><strong>When</strong><button id="clear-when" class="clear-link">Clear</button></div>
+
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>When</strong>
+        <button id="clear-when" class="clear-link">Clear</button>
+      </div>
       <div>
         <label><input type="checkbox" class="when-filter" value="All" checked> All</label><br>
         <label><input type="checkbox" class="when-filter" value="Before School"> Before School</label><br>
@@ -99,67 +193,453 @@
         <label><input type="checkbox" class="when-filter" value="After School"> After School</label>
       </div>
     </div>
-    <div>
-      <div style="display:flex;justify-content:space-between;align-items:center;"><strong>Department</strong><button id="clear-dept" class="clear-link">Clear</button></div>
-      <div id="dept-options"></div>
+
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <strong>Department</strong>
+        <button id="clear-dept" class="clear-link">Clear</button>
+      </div>
+      <div id="dept-options" style="max-height:160px;overflow:auto;"></div>
     </div>
-    <div style="margin-top:12px;"><button id="clear-all" style="width:100%;padding:8px;border-radius:8px;">Clear All Filters</button></div>
+
+    <div style="margin-top:auto;">
+      <button id="clear-all" style="width:100%;padding:10px;border-radius:10px;border:1px solid #e6e6e6;background:#fff;cursor:pointer;">Clear All Filters</button>
+    </div>
   </aside>
 
-  <iframe id="print-iframe" style="display:none;"></iframe>
+  <iframe id="print-iframe" style="display:none;width:0;height:0;"></iframe>
 
 <script>
-/* ===== Cats ===== */
-const catContainer=document.getElementById('cat-container'),catImage=document.getElementById('cat-image');
-const catImages=['images/1C.png','images/2C.png','images/3.png'];
-function showAscendingCatForTesting(){catImage.src=catImages[0];catContainer.classList.add('show');setTimeout(()=>catContainer.classList.remove('show'),2000);}
-let clicks=0,next=30;document.addEventListener('click',()=>{if(++clicks>=next){catImage.src=catImages[Math.floor(Math.random()*catImages.length)];catContainer.classList.add('show');setTimeout(()=>catContainer.classList.remove('show'),2000);clicks=0;next=20+Math.floor(Math.random()*50);}});
+/* ===============================
+   Utility & state
+   =============================== */
+const STORAGE_KEY = 'lms_selected_clubs_v3';
+let clubsData = [];
+let selectedClubs = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'));
 
-/* ===== State ===== */
-let clubsData=[],selectedClubs=new Set(JSON.parse(localStorage.getItem('selclubs')||'[]'));
-const clubsList=document.getElementById('clubs-list');const yearFilter=document.getElementById('year-filter');const searchInput=document.getElementById('search-input');const printControls=document.getElementById('print-controls');
-function saveSel(){localStorage.setItem('selclubs',JSON.stringify([...selectedClubs]));}
-function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+const clubsListEl = document.getElementById('clubs-list');
+const yearFilterEl = document.getElementById('year-filter');
+const searchInputEl = document.getElementById('search-input');
+const printControlsEl = document.getElementById('print-controls');
+const yearMessageEl = document.getElementById('year-message');
+const filterBtnEl = document.getElementById('filter-btn');
+const filterPanelEl = document.getElementById('filter-panel');
+const filterOverlayEl = document.getElementById('filter-overlay');
+const closeFilterBtn = document.getElementById('close-filter');
 
-/* ===== Render ===== */
-function render(){const term=(searchInput.value||'').toLowerCase();const f={year:yearFilter.value,days:[...document.querySelectorAll('.day-filter:checked')].map(c=>c.value),whens:[...document.querySelectorAll('.when-filter:checked')].map(c=>c.value),depts:[...document.querySelectorAll('.dept-filter:checked')].map(c=>c.value)};
-const filtered=clubsData.filter(c=>(!term||(c.name+c.department+c.location+c.staff+c.year.join(' ')).toLowerCase().includes(term))&&(!f.year||(c.year.includes('All Years')||c.year.includes(f.year)))&&(!f.depts.length||f.depts.includes(c.department))&&(!f.days.length||f.days.includes('All')||f.days.includes(c.day))&&(!f.whens.length||f.whens.includes('All')||f.whens.includes(c.when)));
-clubsList.innerHTML='';if(!filtered.length){document.getElementById('no-results').style.display='block';return;}document.getElementById('no-results').style.display='none';
-filtered.forEach(club=>{const card=document.createElement('div');card.className='club-card';if(selectedClubs.has(club.urn))card.classList.add('selected');let y=club.year.includes('All Years')?'All Years':club.year.join(', ');if(f.year&&!club.year.includes('All Years'))y='<span class=\"muted\">Years:</span> '+esc(y);const note=club.name.toLowerCase().includes('lunch club')?'<strong>12:45 start</strong>':(club.name.toLowerCase().includes('chamber choir')||club.name.toLowerCase().includes('orchestra'))?'<strong>16:45 finish</strong>':'';card.innerHTML=`<div style='font-weight:700;margin-bottom:6px;'>${esc(club.name)}</div><div>${esc(club.day)} • ${esc(club.when)}</div><div>${y}</div><div class='muted'>Where: ${esc(club.location)} • Who: ${esc(club.staff)} ${note}</div>`;const cb=document.createElement('input');cb.type='checkbox';cb.value=club.urn;cb.checked=selectedClubs.has(club.urn);cb.disabled=!(yearFilter.value||selectedClubs.has(club.urn));cb.onchange=e=>{if(e.target.checked){selectedClubs.add(club.urn);card.classList.add('selected');}else{selectedClubs.delete(club.urn);card.classList.remove('selected');}saveSel();updatePrint();};const wrap=document.createElement('div');wrap.className='club-select-box';wrap.appendChild(cb);card.appendChild(wrap);clubsList.appendChild(card);});}
+function saveSelections(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify([...selectedClubs])); } catch(e){ console.warn('save failed', e); } }
+function esc(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
-/* ===== Print controls ===== */
-function updatePrint(){printControls.innerHTML='';if(!yearFilter.value){printControls.innerHTML='<span style=\"color:#6b7280;\">Filter by year</span>';return;}const btn=document.createElement('button');btn.textContent='Print Year-group Timetable';btn.style.cssText='background:linear-gradient(90deg,#ef4444,#000);color:#fff;padding:8px 12px;border:none;border-radius:8px;font-weight:700;';btn.onclick=()=>{const y=yearFilter.value;const sel=clubsData.filter(c=>selectedClubs.has(c.urn)&&(c.year.includes('All Years')||c.year.includes(y)));const others=clubsData.filter(c=>!selectedClubs.has(c.urn)&&(c.year.includes('All Years')||c.year.includes(y)));printViaIframe(printHTML('Year '+y+' Clubs Timetable',sel,others,false));};printControls.appendChild(btn);if(!selectedClubs.size){printControls.insertAdjacentHTML('beforeend','<span style=\"color:#6b7280;margin-left:6px;\">Select clubs below to highlight them on your timetable</span>');}else{const btn2=document.createElement('button');btn2.textContent='Print My Selected Clubs';btn2.style.cssText=btn.style.cssText;btn2.onclick=()=>{const y=yearFilter.value;const sel=clubsData.filter(c=>selectedClubs.has(c.urn)&&(c.year.includes('All Years')||c.year.includes(y)));const others=clubsData.filter(c=>!selectedClubs.has(c.urn)&&(c.year.includes('All Years')||c.year.includes(y)));printViaIframe(printHTML('My selected clubs timetable',sel,others,true));};printControls.appendChild(btn2);}}
+/* ===============================
+   Cats animation functions
+   =============================== */
+const catContainer = document.getElementById('cat-container');
+const catImage = document.getElementById('cat-image');
+const catImages = ['images/1C.png','images/2C.png','images/3.png'];
 
-/* ===== Print HTML ===== */
-function printHTML(title,sel,others,showOther){const days=['Monday','Tuesday','Wednesday','Thursday','Friday'],whens=['Before School','Lunchtime','After School'];let grid={};whens.forEach(w=>{grid[w]={};days.forEach(d=>grid[w][d]=[]);});[...sel,...others].forEach(c=>{if(grid[c.when]&&grid[c.when][c.day])grid[c.when][c.day].push(c);});let html='<h1>'+esc(title)+'</h1>';if(showOther)html+='<div style=\"font-style:italic;color:#6b7280;margin-bottom:6px;\">Other clubs available to me</div>';html+='<table style=\"width:100%;border-collapse:collapse;font-size:10pt;\"><thead><tr><th>When/Day</th>'+days.map(d=>'<th>'+d+'</th>').join('')+'</tr></thead><tbody>';whens.forEach(w=>{html+='<tr><th>'+w+'</th>';days.forEach(d=>{let cell=grid[w][d];if(!cell.length){html+='<td>—</td>';return;}let s='',o='';cell.forEach(c=>{if(sel.find(x=>x.urn===c.urn))s+='<div><b>'+esc(c.name)+'</b><div>'+esc(c.year.includes('All Years')?'All Years':'Years: '+c.year.join(', '))+'</div></div>';else if(others.find(x=>x.urn===c.urn))o+='<div style=\"font-size:90%;font-style:italic;color:#6b7280;\">'+esc(c.name)+' ('+esc(c.year.includes('All Years')?'All Years':'Years: '+c.year.join(', '))+')</div>';});html+='<td>'+s+o+'</td>';});html+='</tr>';});html+='</tbody></table>';return'<!doctype html><html><head><meta charset=utf-8><title>'+esc(title)+'</title></head><body>'+html+'</body></html>';}
+// show ascending cat for testing from console
+function showAscendingCatForTesting(){
+  try{
+    if(catImages.length === 0) return;
+    catImage.src = catImages[0];
+    catContainer.classList.add('show');
+    setTimeout(()=>{ catContainer.classList.remove('show'); }, 2000);
+  }catch(e){ console.warn(e); }
+}
 
-/* ===== Print helper ===== */
-function printViaIframe(html){const f=document.getElementById('print-iframe');const doc=f.contentDocument||f.contentWindow.document;doc.open();doc.write(html);doc.close();setTimeout(()=>f.contentWindow.print(),300);}
+// small interaction-based random popups
+let catInteractionCount = 0;
+let catNext = 40;
+document.addEventListener('click', ()=>{ catInteractionCount++; if(catInteractionCount >= catNext){ triggerRandomCat(); catInteractionCount = 0; catNext = 20 + Math.floor(Math.random()*80); } });
+document.addEventListener('mousemove', ()=>{ catInteractionCount++; if(catInteractionCount >= catNext){ triggerRandomCat(); catInteractionCount = 0; catNext = 20 + Math.floor(Math.random()*80); } });
 
-/* ===== CSV Fetch ===== */
-async function fetchClubs(){const res=await fetch('clubs.csv');const text=await res.text();const rows=text.trim().split('\n').slice(1);clubsData=rows.map(r=>{const cols=r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.replace(/^"|"$/g,''));return{urn:cols[9]||cols[0]+Math.random(),name:cols[0],when:cols[1],day:cols[2],weeks:cols[3],time:cols[4],yearRaw:cols[5],year:(cols[5]&&cols[5].toLowerCase().includes('all years'))?['All Years']:cols[5].split(/[,&/ ]+/).map(x=>x.trim()).filter(Boolean),location:cols[6],staff:cols[7],department:cols[8]};});buildDept();render();updatePrint();}
-function buildDept(){const set=new Set(clubsData.map(c=>c.department));const div=document.getElementById('dept-options');div.innerHTML='<label><input type=\"checkbox\" class=\"dept-filter\" value=\"All\" checked> All</label><br>'+[...set].sort().map(d=>'<label><input type=\"checkbox\" class=\"dept-filter\" value=\"'+esc(d)+'\"> '+esc(d)+'</label>').join('<br>');}
+function triggerRandomCat(){
+  const idx = Math.floor(Math.random()*catImages.length);
+  catImage.src = catImages[idx] || '';
+  catContainer.classList.add('show');
+  setTimeout(()=>{ catContainer.classList.remove('show'); }, 2000);
+}
 
-/* ===== Filter logic ===== */
-function applyFiltersAndRender(){render();}
-document.getElementById('clear-day').onclick=()=>{document.querySelectorAll('.day-filter').forEach(c=>c.checked=c.value==='All');applyFiltersAndRender();};
-document.getElementById('clear-when').onclick=()=>{document.querySelectorAll('.when-filter').forEach(c=>c.checked=c.value==='All');applyFiltersAndRender();};
-document.getElementById('clear-dept').onclick=()=>{document.querySelectorAll('.dept-filter').forEach(c=>c.checked=c.value==='All');applyFiltersAndRender();};
-document.getElementById('clear-all').onclick=()=>{['.day-filter','.when-filter','.dept-filter'].forEach(sel=>document.querySelectorAll(sel).forEach(c=>c.checked=c.value==='All'));applyFiltersAndRender();};
-function toggleAllLogic(sel){document.querySelectorAll(sel).forEach(c=>c.onchange=e=>{if(c.value==='All'&&c.checked){document.querySelectorAll(sel).forEach(x=>{if(x!==c)x.checked=false;});}else if(c.value!=='All'&&c.checked){document.querySelector(sel+'[value=\"All\"]').checked=false;}});}
-toggleAllLogic('.day-filter');toggleAllLogic('.when-filter');toggleAllLogic('.dept-filter');
+/* ===============================
+   CSV fetch & parsing
+   =============================== */
+async function fetchClubsCSV(){
+  try{
+    const res = await fetch('clubs.csv', { cache: 'no-store' });
+    const text = await res.text();
+    const lines = text.trim().split(/\r?\n/).filter(Boolean);
+    if(lines.length <= 1){ clubsData = []; renderClubs(); populateDeptOptions(); initFilterLogic(); updatePrintControls(); return; }
+    const rows = lines.slice(1);
+    clubsData = rows.map(r=>{
+      const cols = r.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(c=>c.trim().replace(/^"|"$/g,''));
+      const yearRaw = cols[5] || '';
+      let yearArr = [];
+      if(yearRaw && yearRaw.toLowerCase().includes('all years')) yearArr = ['All Years'];
+      else if(yearRaw) yearArr = yearRaw.split(/[,&\/\s]+/).map(x=>x.trim()).filter(Boolean);
+      return {
+        urn: cols[9] ? String(cols[9]) : (cols[0] + '::' + Math.random().toString(36).slice(2,8)),
+        name: cols[0] || '',
+        when: cols[1] || '',
+        day: cols[2] || '',
+        weeks: cols[3] || '',
+        time: cols[4] || '',
+        yearRaw: yearRaw,
+        year: yearArr,
+        location: cols[6] || '',
+        staff: cols[7] || '',
+        department: cols[8] || ''
+      };
+    });
+    populateDeptOptions();
+    renderClubs();
+    initFilterLogic();
+    updatePrintControls();
+    updateActiveFiltersSummary();
+  }catch(err){
+    console.error('Failed to load clubs.csv', err);
+    clubsListEl.innerHTML = '<div style="padding:14px;background:#fff;border-radius:10px;color:#b91c1c">Error loading clubs.csv — check file and console</div>';
+  }
+}
 
-/* ===== Events ===== */
-yearFilter.onchange=()=>{yearFilter.classList.toggle('filled',!!yearFilter.value);render();updatePrint();};
-searchInput.oninput=()=>render();
-document.getElementById('filter-btn').onclick=()=>{document.getElementById('filter-panel').classList.add('open');document.getElementById('filter-overlay').style.display='block';};
-document.getElementById('filter-overlay').onclick=()=>{document.getElementById('filter-panel').classList.remove('open');document.getElementById('filter-overlay').style.display='none';};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('filter-panel').classList.remove('open');document.getElementById('filter-overlay').style.display='none';}});
+/* ===============================
+   Populate Departments filter
+   =============================== */
+function populateDeptOptions(){
+  const container = document.getElementById('dept-options');
+  const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort();
+  container.innerHTML = depts.map(d=>`<label><input type="checkbox" class="dept-filter" value="${esc(d)}"> ${esc(d)}</label><br>`).join('');
+}
 
-/* ===== Init ===== */
-fetchClubs();
+/* ===============================
+   Filter & render helpers
+   =============================== */
+function getActiveFilters(){
+  const year = yearFilterEl.value;
+  const search = (searchInputEl.value || '').trim().toLowerCase();
+  const selectedDays = Array.from(document.querySelectorAll('.day-filter:checked')).map(i=>i.value);
+  const selectedWhens = Array.from(document.querySelectorAll('.when-filter:checked')).map(i=>i.value);
+  const selectedDepts = Array.from(document.querySelectorAll('.dept-filter:checked')).map(i=>i.value);
+  return { year, search, selectedDays, selectedWhens, selectedDepts };
+}
+
+function clubMatchesFilter(club, f){
+  if(f.search){
+    const hay = (club.name + ' ' + (club.department||'') + ' ' + (club.location||'') + ' ' + (club.staff||'') + ' ' + (club.year?club.year.join(' '):'')).toLowerCase();
+    if(!hay.includes(f.search)) return false;
+  }
+  if(f.year){
+    if(!club.year.includes('All Years') && !club.year.includes(f.year)) return false;
+  }
+  if(f.selectedDepts.length){
+    if(!f.selectedDepts.includes(club.department)) return false;
+  }
+  if(f.selectedDays.length && !f.selectedDays.includes('All')){
+    if(!f.selectedDays.includes(club.day)) return false;
+  }
+  if(f.selectedWhens.length && !f.selectedWhens.includes('All')){
+    if(!f.selectedWhens.includes(club.when)) return false;
+  }
+  return true;
+}
+
+function specialClubNoteHTML(name){
+  if(!name) return '';
+  const n = name.toLowerCase();
+  if(n.includes('lunch club')) return ' <strong>12:45 start</strong>';
+  if(n.includes('chamber choir') || n.includes('orchestra')) return ' <strong>16:45 finish</strong>';
+  return '';
+}
+
+/* ===============================
+   Render club cards
+   =============================== */
+function renderClubs(){
+  const f = getActiveFilters();
+  const filtered = clubsData.filter(c => clubMatchesFilter(c, f));
+  clubsListEl.innerHTML = '';
+  if(filtered.length === 0){
+    document.getElementById('no-results').style.display = 'block';
+  } else {
+    document.getElementById('no-results').style.display = 'none';
+  }
+
+  filtered.forEach(club=>{
+    const card = document.createElement('div');
+    card.className = 'club-card';
+    if(selectedClubs.has(club.urn)) card.classList.add('selected');
+
+    let yearsText = '';
+    if(club.year.includes('All Years')) yearsText = 'All Years';
+    else yearsText = club.year.join(', ');
+    if(f.year && !club.year.includes('All Years')) {
+      yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
+    } else {
+      yearsText = esc(yearsText);
+    }
+
+    const specialNote = specialClubNoteHTML(club.name);
+
+    card.innerHTML = `
+      <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
+      <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
+      <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
+      <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span>${specialNote}</div>
+    `;
+
+    const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = club.urn; cb.checked = selectedClubs.has(club.urn);
+    cb.disabled = !(yearFilterEl.value || selectedClubs.has(club.urn));
+    cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
+    cb.addEventListener('change', (e)=>{
+      if(e.target.checked){ selectedClubs.add(club.urn); card.classList.add('selected'); }
+      else { selectedClubs.delete(club.urn); card.classList.remove('selected'); }
+      saveSelections();
+      updatePrintControls();
+    });
+    cbWrap.appendChild(cb);
+    card.appendChild(cbWrap);
+    clubsListEl.appendChild(card);
+  });
+}
+
+/* ===============================
+   Print controls & printing
+   =============================== */
+function updatePrintControls(){
+  printControlsEl.innerHTML = '';
+  const year = yearFilterEl.value;
+  if(!year){
+    yearMessageEl.textContent = 'Filter by year';
+    printControlsEl.appendChild(yearMessageEl);
+    return;
+  }
+
+  // Print Year-group Timetable (single button)
+  const btnYear = document.createElement('button');
+  btnYear.type = 'button';
+  btnYear.textContent = 'Print Year-group Timetable';
+  btnYear.style.padding = '8px 12px';
+  btnYear.style.borderRadius = '10px';
+  btnYear.style.border = 'none';
+  btnYear.style.background = 'linear-gradient(90deg,#ef4444,#000)';
+  btnYear.style.color = '#fff';
+  btnYear.style.fontWeight = '700';
+  btnYear.id = 'print-year-btn';
+  btnYear.addEventListener('click', ()=>{
+    const y = yearFilterEl.value;
+    const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y));
+    const selected = clubsForYear.filter(c => selectedClubs.has(c.urn));
+    const others = clubsForYear.filter(c => !selectedClubs.has(c.urn));
+    const title = `Year ${y} Clubs Timetable`;
+    const html = createPrintHTML(title, selected, others, { showOtherTitle:false });
+    printViaIframe(html);
+  });
+  printControlsEl.appendChild(btnYear);
+
+  // Helper text or personal print button
+  if(selectedClubs.size === 0){
+    const helper = document.createElement('span');
+    helper.textContent = 'Select clubs below to highlight them on your timetable';
+    helper.style.color = 'var(--muted)';
+    helper.style.marginLeft = '8px';
+    printControlsEl.appendChild(helper);
+  } else {
+    const btnPersonal = document.createElement('button');
+    btnPersonal.type = 'button';
+    btnPersonal.textContent = 'Print My Selected Clubs';
+    btnPersonal.style.padding = '8px 12px';
+    btnPersonal.style.borderRadius = '10px';
+    btnPersonal.style.border = 'none';
+    btnPersonal.style.background = 'linear-gradient(90deg,#ef4444,#000)';
+    btnPersonal.style.color = '#fff';
+    btnPersonal.style.fontWeight = '700';
+    btnPersonal.id = 'print-personal-btn';
+    btnPersonal.addEventListener('click', ()=>{
+      const y = yearFilterEl.value;
+      const selected = clubsData.filter(c => selectedClubs.has(c.urn) && (c.year.includes('All Years') || c.year.includes(y)));
+      const others = clubsData.filter(c => !selectedClubs.has(c.urn) && (c.year.includes('All Years') || c.year.includes(y)));
+      const title = 'My selected clubs timetable';
+      const html = createPrintHTML(title, selected, others, { showOtherTitle:true });
+      printViaIframe(html);
+    });
+    printControlsEl.appendChild(btnPersonal);
+  }
+}
+
+/* Build grid and create print HTML */
+function buildGridForPrint(clubs){
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const whens = ['Before School','Lunchtime','After School'];
+  const grid = {};
+  whens.forEach(w=>{ grid[w] = {}; days.forEach(d=>grid[w][d] = []); });
+  clubs.forEach(c=>{
+    const when = c.when || 'After School';
+    const day = c.day || '';
+    if(grid[when] && grid[when][day]) grid[when][day].push(c);
+  });
+  return { grid, days, whens };
+}
+
+function createPrintHTML(title, selectedArr, othersArr, options){
+  options = options || {};
+  const combined = (selectedArr || []).concat(othersArr || []);
+  const { grid, days, whens } = buildGridForPrint(combined);
+
+  const styles = `
+    <style>
+      @page{size:landscape;margin:12mm;}
+      body{font-family:Inter,Arial,sans-serif;color:#000;margin:0;padding:12px;}
+      h1{font-size:18pt;margin:0 0 6px 0;}
+      table.print-table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10pt;}
+      th,td{border:1px solid #d1d5db;padding:6px;vertical-align:top;word-break:break-word;}
+      th{background:#f8fafc;font-weight:700;text-align:left;}
+      .club-name{font-weight:700;}
+      .other-club{font-style:italic;color:#6b7280;font-size:90%;line-height:0.95;margin-bottom:4px;display:block;}
+      .small-gap{height:0.25rem;}
+    </style>
+  `;
+
+  let html = `<div id="printable-area"><h1>${esc(title)}</h1>`;
+  if(options.showOtherTitle){ html += `<div style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`; }
+  html += `<table class="print-table"><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+
+  whens.forEach(w=>{
+    html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '12:45-13:30' : '15:30-16:30'}</div></th>`;
+    days.forEach(d=>{
+      const cell = grid[w][d] || [];
+      if(!cell.length){ html += `<td style="min-height:70px;">—</td>`; return; }
+      let cellHtml = '';
+      // selected first
+      cell.forEach(c=>{
+        if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: ' + esc(c.year.join(', ')));
+          cellHtml += `<div><span class="club-name">${esc(c.name)}</span><div style="font-size:10pt;color:#000;">${ytext}${specialClubNoteHTML(c.name)?` <span>${specialClubNoteHTML(c.name)}</span>`:''}</div></div><div class="small-gap"></div>`;
+        }
+      });
+      // others (grey italic smaller)
+      cell.forEach(c=>{
+        if(othersArr && othersArr.find(o=>o.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: ' + esc(c.year.join(', ')));
+          cellHtml += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div><div style="height:0.125rem;"></div>`;
+        }
+      });
+      html += `<td>${cellHtml}</td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
+}
+
+function printViaIframe(html){
+  const iframe = document.getElementById('print-iframe');
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  setTimeout(()=>{
+    try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print — please use your browser print command.'); }
+  }, 400);
+}
+
+/* ===============================
+   Filter panel logic & wiring
+   =============================== */
+filterBtnEl.addEventListener('click', ()=>{ filterPanelEl.classList.add('open'); filterOverlayEl.style.display = 'block'; filterBtnEl.setAttribute('aria-expanded','true'); });
+closeFilterBtn.addEventListener('click', ()=>{ filterPanelEl.classList.remove('open'); filterOverlayEl.style.display = 'none'; filterBtnEl.setAttribute('aria-expanded','false'); });
+filterOverlayEl.addEventListener('click', ()=>{ filterPanelEl.classList.remove('open'); filterOverlayEl.style.display = 'none'; filterBtnEl.setAttribute('aria-expanded','false'); });
+
+// Clear buttons
+document.getElementById('clear-day').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
+document.getElementById('clear-when').addEventListener('click', ()=>{ document.querySelectorAll('.when-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
+document.getElementById('clear-dept').addEventListener('click', ()=>{ document.querySelectorAll('.dept-filter').forEach(c=>c.checked = false); applyFiltersAndRender(); });
+document.getElementById('clear-all').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter, .when-filter, .dept-filter').forEach(c=>c.checked = false); document.querySelector('.day-filter[value="All"]').checked = true; document.querySelector('.when-filter[value="All"]').checked = true; applyFiltersAndRender(); });
+
+// Auto-toggle support for group checkboxes
+function initFilterLogic(){
+  function wireGroup(selector){
+    const boxes = Array.from(document.querySelectorAll(selector));
+    if(!boxes.length) return;
+    boxes.forEach(b=>{
+      b.addEventListener('change', ()=>{
+        if(b.value === 'All' && b.checked){
+          boxes.filter(x=>x.value !== 'All').forEach(x=>x.checked = false);
+        } else if(b.value !== 'All' && b.checked){
+          const allBox = boxes.find(x=>x.value === 'All');
+          if(allBox) allBox.checked = false;
+        }
+        if(!boxes.some(x=>x.checked)){
+          const allBox = boxes.find(x=>x.value === 'All');
+          if(allBox) allBox.checked = true;
+        }
+        applyFiltersAndRender();
+      });
+    });
+  }
+  wireGroup('.day-filter');
+  wireGroup('.when-filter');
+  wireGroup('.dept-filter');
+}
+
+/* ===============================
+   Apply filters, summary and events
+   =============================== */
+function applyFiltersAndRender(){
+  renderClubs();
+  updateActiveFiltersSummary();
+  updatePrintControls();
+}
+
+function updateActiveFiltersSummary(){
+  const parts = [];
+  const year = yearFilterEl.value; if(year) parts.push(`Year: ${year}`);
+  const selectedDays = Array.from(document.querySelectorAll('.day-filter:checked')).map(i=>i.value);
+  if(selectedDays.length && !selectedDays.includes('All')) parts.push(`Day: ${selectedDays.join(', ')}`);
+  const selectedWhens = Array.from(document.querySelectorAll('.when-filter:checked')).map(i=>i.value);
+  if(selectedWhens.length && !selectedWhens.includes('All')) parts.push(`When: ${selectedWhens.join(', ')}`);
+  const selectedDepts = Array.from(document.querySelectorAll('.dept-filter:checked')).map(i=>i.value);
+  if(selectedDepts.length) parts.push(`Dept: ${selectedDepts.join(', ')}`);
+  const search = (searchInputEl.value||'').trim();
+  if(search) parts.push(`Search: "${search}"`);
+  document.getElementById('active-filters-summary').textContent = parts.length ? parts.join(' | ') : 'All clubs shown';
+}
+
+// Year select color and change handling
+function updateYearSelectColor(){ if(!yearFilterEl.value) yearFilterEl.style.color = 'var(--red)'; else yearFilterEl.style.color = '#111'; }
+yearFilterEl.addEventListener('change', ()=>{
+  updateYearSelectColor();
+  // re-enable checkboxes in card list as appropriate
+  document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); });
+  applyFiltersAndRender();
+});
+updateYearSelectColor();
+
+searchInputEl.addEventListener('input', ()=>{ applyFiltersAndRender(); });
+
+// When dept filters are populated and changed, reapply
+document.addEventListener('change', (e)=>{
+  if(e.target && e.target.classList && e.target.classList.contains('dept-filter')) applyFiltersAndRender();
+});
+
+/* ===============================
+   Initialization & startup
+   =============================== */
+fetchClubsCSV();
+// re-run initFilterLogic after department options populate
+const deptObserver = new MutationObserver((mut)=>{
+  if(document.getElementById('dept-options').children.length){
+    initFilterLogic();
+    deptObserver.disconnect();
+  }
+});
+deptObserver.observe(document.getElementById('dept-options'), { childList:true });
+
+window.addEventListener('load', ()=>{
+  setTimeout(()=>{ document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); }); }, 400);
+  updatePrintControls();
+  updateActiveFiltersSummary();
+});
 </script>
 </body>
 </html>
-
-
