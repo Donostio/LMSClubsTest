@@ -83,7 +83,10 @@
   </style>
 </head>
 <body>
-  <div class="container">
+  <!-- cat container for animation -->
+  <div id="cat-container" class="cat-container"><div id="cat-wrapper"><img id="cat-image" src="" alt="cat"></div></div>
+
+  <div class="container" style="background:#fff;border-radius:12px;padding:18px;">
     <header class="card">
       <div style="display:flex;align-items:center;gap:12px;">
         <div style="width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#111,#333);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">LMS</div>
@@ -100,28 +103,36 @@
       </div>
     </header>
 
-    <!-- Controls (year + message). Year select reduced width. -->
+    <!-- Controls (year + print area). Year select reduced width. -->
     <section style="margin-bottom:8px;display:flex;gap:18px;align-items:flex-start;">
-      <div style="min-width:160px;">
-        <label for="year-filter" style="display:block;font-weight:600;margin-bottom:6px;">Year Group</label>
-        <select id="year-filter" style="padding:10px;border-radius:10px;border:1px solid #e5e7eb;">
-          <option value="">All</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-          <option value="13">13</option>
-        </select>
-        <div id="year-helper" style="color:#6b7280;font-size:13px;margin-top:8px;">Select a year to enable club selection & printing</div>
+      <div style="min-width:160px;display:flex;flex-direction:row;align-items:center;gap:12px;">
+        <div>
+          <label for="year-filter" style="display:block;font-weight:600;margin-bottom:6px;">Year Group</label>
+          <select id="year-filter" style="padding:10px;border-radius:10px;border:1px solid #e5e7eb;">
+            <option value="">All</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+          </select>
+        </div>
+
+        <!-- Print area: buttons and helper text sit here to the right of year select -->
+        <div id="print-area" style="display:flex;flex-direction:row;align-items:center;gap:8px;margin-top:22px;">
+          <div id="print-btn-placeholder">
+            <div id="year-helper" style="color:#6b7280;font-size:13px;">Select a year to enable club selection & printing</div>
+          </div>
+        </div>
       </div>
 
       <!-- Spacer. SEARCH moved below the title area and above the cards per request -->
     </section>
 
     <!-- Search placed above cards -->
-    <div style="margin-bottom:12px;background:#fff;padding:12px;border-radius:10px;">
+    <div style="margin-bottom:12px;padding:12px;border-radius:10px;">
       <input id="search-input" placeholder="Search for a club..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;" />
     </div>
 
@@ -133,7 +144,7 @@
     </main>
 
     <footer style="margin-top:32px;color:#6b7280;font-size:13px;">
-      <p>This site is maintained by LMS class reps🚀</p>
+      <p>This site is maintained by LMS class reps</p>
       <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" style="color:#ef4444;font-weight:600;">Please share your thoughts here 💬</a></p>
     </footer>
   </div>
@@ -175,12 +186,7 @@
     </div>
   </aside>
 
-  <!-- Fixed print buttons only (removed floating bottom-right controls) -->
-  <div style="position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px;">
-    <button id="print-year-main" style="display:none;background:linear-gradient(90deg,#ef4444,#000);color:#fff;padding:10px 14px;border-radius:10px;border:none;font-weight:700;">Print Year-group Timetable</button>
-    <button id="print-personal" style="display:none;background:#111827;color:#fff;padding:8px 12px;border-radius:8px;border:none;">Print my selected-clubs</button>
-  </div>
-
+  <!-- Fixed print buttons removed from bottom; they appear next to year select when needed -->
   <iframe id="print-iframe" style="display:none; width:0; height:0;"></iframe>
 
   <script>
@@ -254,11 +260,13 @@
       }
     };
 
-    // Exposed test function to trigger ascending cat
+    // Exposed test function to trigger ascending cat -> also run once on load for visible confirmation
     const showAscendingCatForTesting = () => { showCat(); };
-
     document.addEventListener('click', handleInteraction);
     document.addEventListener('mousemove', handleInteraction);
+
+    // run a single test show on load so user sees it is working
+    setTimeout(() => { try{ showAscendingCatForTesting(); }catch(e){} }, 600);
 
     /**************************************************************************
      * CLUBS: fetching, filtering, rendering, selection, printing
@@ -267,8 +275,34 @@
     const selectedClubs = new Set();
     const clubsListEl = document.getElementById('clubs-list');
     const yearFilterEl = document.getElementById('year-filter');
-    const printYearMainBtn = document.getElementById('print-year-main');
-    const printPersonalBtn = document.getElementById('print-personal');
+    const printArea = document.getElementById('print-area');
+    const printYearMainBtn = document.createElement('button');
+    printYearMainBtn.id = 'print-year-main';
+    printYearMainBtn.textContent = 'Print Year-group Timetable';
+    printYearMainBtn.style.background = 'linear-gradient(90deg,#ef4444,#000)';
+    printYearMainBtn.style.color = '#fff';
+    printYearMainBtn.style.padding = '10px 14px';
+    printYearMainBtn.style.borderRadius = '10px';
+    printYearMainBtn.style.border = 'none';
+    printYearMainBtn.style.fontWeight = '700';
+    printYearMainBtn.style.display = 'none';
+
+    const printPersonalBtn = document.createElement('button');
+    printPersonalBtn.id = 'print-personal';
+    printPersonalBtn.textContent = 'Print My Selected Clubs';
+    printPersonalBtn.style.background = '#111827';
+    printPersonalBtn.style.color = '#fff';
+    printPersonalBtn.style.padding = '8px 12px';
+    printPersonalBtn.style.borderRadius = '8px';
+    printPersonalBtn.style.border = 'none';
+    printPersonalBtn.style.display = 'none';
+
+    // helper message element
+    const yearHelper = document.getElementById('year-helper');
+    // place buttons into print-area when needed
+    printArea.appendChild(printYearMainBtn);
+    printArea.appendChild(printPersonalBtn);
+
     const filterBtnEl = document.getElementById('filter-btn');
     const filterPanelEl = document.getElementById('filter-panel');
     const filterOverlayEl = document.getElementById('filter-overlay');
@@ -280,19 +314,15 @@
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
     const activeFiltersSummary = document.getElementById('active-filters-summary');
     const searchInputEl = document.getElementById('search-input');
-    const yearHelper = document.getElementById('year-helper');
 
     const STORAGE_KEY = 'lms_selected_clubs_v1';
 
-    function loadSelectionsFromStorage(){
-      try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return; const arr = JSON.parse(raw); if(Array.isArray(arr)) arr.forEach(u=>selectedClubs.add(String(u))); }catch(e){ console.warn('Could not parse previous selections', e); }
-    }
+    function loadSelectionsFromStorage(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return; const arr = JSON.parse(raw); if(Array.isArray(arr)) arr.forEach(u=>selectedClubs.add(String(u))); }catch(e){ console.warn('Could not parse previous selections', e); } }
     function saveSelectionsToStorage(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedClubs))); }catch(e){ console.warn('save failed', e); } }
 
     function escapeHtml(s){ return String(s ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
     function detectWeekFlag(weeksRaw){ if(!weeksRaw) return ''; const w = weeksRaw.replace(/\s+/g,'').toLowerCase(); if (w === '1&2' || w === '1and2' || w === '1-2' || w === '12' || w === '1/2') return ''; if (w.includes('1') && !w.includes('2')) return ' (W1-only)'; if (w.includes('2') && !w.includes('1')) return ' (W2-only)'; if (w.includes('w1') && !w.includes('w2')) return ' (W1-only)'; if (w.includes('w2') && !w.includes('w1')) return ' (W2-only)'; return ''; }
-
     function specialClubNoteHTML(name){ if(!name) return ''; const n=name.toLowerCase(); if(n.includes('lunch club')) return ' <strong>12:45 start</strong>'; if(n.includes('chamber choir')||n.includes('orchestra')) return ' <strong>16:45 finish</strong>'; return ''; }
 
     async function fetchClubsCSV(){
@@ -302,7 +332,7 @@
         const lines = text.trim().split('\n').filter(Boolean);
         if(lines.length <= 1) { clubsData = []; renderClubs([]); return; }
         const rows = lines.slice(1);
-        clubsData = rows.map(row=>{ const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c=>c.trim().replace(/^"|"$/g,'')); return { name: cols[0]||'', when: cols[1]||'', day: cols[2]||'', weeks: cols[3]||'', time: cols[4]||'', yearRaw: cols[5]||'', year: (cols[5] && cols[5].toLowerCase().includes('all years')) ? ['All Years'] : (cols[5] ? cols[5].split(/[,&\/]+/).map(x=>x.trim()).filter(Boolean) : []), location: cols[6]||'', staff: cols[7]||'', department: cols[8]||'', urn: cols[9] ? String(cols[9]) : (cols[0] + '::' + Math.random().toString(36).slice(2,8)) }; });
+        clubsData = rows.map(row=>{ const cols = row.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/).map(c=>c.trim().replace(/^"|"$/g,'')); return { name: cols[0]||'', when: cols[1]||'', day: cols[2]||'', weeks: cols[3]||'', time: cols[4]||'', yearRaw: cols[5]||'', year: (cols[5] && cols[5].toLowerCase().includes('all years')) ? ['All Years'] : (cols[5] ? cols[5].split(/[,\s&\/]+/).map(x=>x.trim()).filter(Boolean) : []), location: cols[6]||'', staff: cols[7]||'', department: cols[8]||'', urn: cols[9] ? String(cols[9]) : (cols[0] + '::' + Math.random().toString(36).slice(2,8)) }; });
         populateFilters(); renderClubs(clubsData);
       }catch(err){ console.error('Failed to load clubs.csv', err); clubsListEl.innerHTML = '<div style="padding:14px;background:#fff;border-radius:10px;color:#b91c1c">Error loading clubs.csv — check file and console</div>'; }
     }
@@ -349,7 +379,6 @@
         const card = document.createElement('div'); card.className = 'club-card'; card.style.minHeight = '120px';
         if(selectedClubs.has(club.urn)) card.classList.add('club-selected');
 
-        // Year display: if a specific year is selected (not empty) show the label 'Years:' in grey
         let yearHtml = '';
         if(club.year.includes('All Years')){
           yearHtml = 'All Years';
@@ -358,7 +387,6 @@
           else { yearHtml = escapeHtml(club.year.join(', ')); }
         }
 
-        // special notes
         const specialNote = specialClubNoteHTML(club.name);
 
         card.innerHTML = `
@@ -385,20 +413,29 @@
 
     function updateFloatingPrintVisibility(){ if(selectedClubs.size > 0){ printPersonalBtn.style.display = 'inline-block'; } else { printPersonalBtn.style.display = 'none'; } }
 
-    // Year dropdown change: show the Print Year-group button and update helper text
-    yearFilterEl.addEventListener('change', () => { document.getElementById('print-year-main').style.display = yearFilterEl.value ? 'inline-block' : 'none'; renderClubs(clubsData); updatePrintHelperText(); });
+    yearFilterEl.addEventListener('change', () => { printYearMainBtn.style.display = yearFilterEl.value ? 'inline-block' : 'none'; renderClubs(clubsData); updatePrintHelperText(); });
 
-    function updatePrintHelperText(){ if(!yearFilterEl.value){ yearHelper.textContent = 'Select a year to enable club selection & printing'; yearHelper.style.display = 'block'; } else {
-        if(selectedClubs.size === 0){ yearHelper.textContent = 'To print a timetable with chosen clubs only, select them below'; yearHelper.style.display = 'block'; }
-        else { yearHelper.style.display = 'none'; }
-      } }
+    function updatePrintHelperText(){
+      if(!yearFilterEl.value){ yearHelper.textContent = 'Select a year to enable club selection & printing'; yearHelper.style.display = 'block'; // ensure buttons hidden
+        printYearMainBtn.style.display = 'none'; printPersonalBtn.style.display = 'none';
+      } else {
+        if(selectedClubs.size === 0){ // show year-group button and helper message
+          printYearMainBtn.style.display = 'inline-block'; printPersonalBtn.style.display = 'none';
+          yearHelper.textContent = 'To print a timetable with chosen clubs only, select them below'; yearHelper.style.display = 'block';
+        } else { // show personal print button instead
+          printYearMainBtn.style.display = 'inline-block'; printPersonalBtn.style.display = 'inline-block'; yearHelper.style.display = 'none';
+        }
+      }
+      // ensure buttons are present in DOM
+      if(!printArea.contains(printYearMainBtn)) printArea.appendChild(printYearMainBtn);
+      if(!printArea.contains(printPersonalBtn)) printArea.appendChild(printPersonalBtn);
+    }
 
-    // Filter panel open/close
+    // Filter panel controls
     filterBtnEl.addEventListener('click', () => { filterPanelEl.classList.add('is-active'); filterOverlayEl.classList.add('is-active'); filterBtnEl.setAttribute('aria-expanded','true'); });
     closeFilterBtn.addEventListener('click', () => { filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false'); });
     filterOverlayEl.addEventListener('click', () => { filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false'); });
 
-    // Panel behavior: when 'All' is checked, uncheck others; when specific checked uncheck 'All'
     filterPanelEl.addEventListener('change', (e) => {
       if(!e.target) return; const el = e.target;
       if(el.name === 'day-filter'){
@@ -412,12 +449,10 @@
       renderClubs(clubsData);
     });
 
-    // Clear buttons next to Day and When
     document.getElementById('clear-day-btn').addEventListener('click', ()=>{ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>i.checked = i.value === 'All'); renderClubs(clubsData); });
     document.getElementById('clear-when-btn').addEventListener('click', ()=>{ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>i.checked = i.value === 'All'); renderClubs(clubsData); });
 
-    // Clear all
-    clearFiltersBtn.addEventListener('click', () => { departmentFilter.value = ''; searchInputEl.value = ''; yearFilterEl.value = ''; document.getElementById('print-year-main').style.display = 'none'; filterPanelEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = cb.value === 'All'); renderClubs(clubsData); updateActiveFiltersSummary(); filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); });
+    clearFiltersBtn.addEventListener('click', () => { departmentFilter.value = ''; searchInputEl.value = ''; yearFilterEl.value = ''; printYearMainBtn.style.display = 'none'; filterPanelEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = cb.value === 'All'); renderClubs(clubsData); updateActiveFiltersSummary(); filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); });
 
     searchInputEl.addEventListener('input', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
     departmentFilter.addEventListener('change', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
@@ -441,15 +476,8 @@
       `;
 
       let html = `<div id="printable-area"><h1>${escapeHtml(title)}</h1>`;
-
-      // For Year-group print we DO NOT show the "Other clubs available to me" title as requested
-      if(forPersonal){
-        // if personal print and user has no selected clubs then include the header
-        if(clubsArray.length === 0){ html += `<div class="other-club" style="margin-bottom:8px;">Other clubs available to me</div>`; }
-      }
-
+      if(forPersonal){ html += `<div class="other-club" style="margin-bottom:8px;">Other clubs available to me</div>`; }
       html += `<table class="print-table"><thead><tr><th style="width:16%">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
-
       whens.forEach(w => {
         html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${times[w]}</div></th>`;
         days.forEach(d => {
@@ -458,42 +486,34 @@
           else{
             let primaryHtml = '';
             let otherHtml = '';
-
-            // Primary clubs: show club name (bold) and merged year label if appropriate, omit specific time slot in print
             cellClubs.forEach(club => {
               const yearText = club.year.includes('All Years') ? 'All Years' : (yearFilterEl.value ? `Years: ${club.year.join(', ')}` : club.year.join(', '));
-              primaryHtml += `<div><div class="club-name">${escapeHtml(club.name)}</div>`;
+              primaryHtml += `<div style="margin-bottom:8px;"><div class="club-name">${escapeHtml(club.name)}</div>`;
               primaryHtml += `<div style="font-size:10pt;color:#000;">${escapeHtml(yearText)}${specialClubNoteHTML(club.name) ? `<span> ${specialClubNoteHTML(club.name)}</span>` : ''}</div>`;
               primaryHtml += `</div>`;
             });
-
-            // Other clubs: For year-group print we still include other clubs inline in cells (grey italic) but no separate title
             const otherClubs = cellClubs.filter(c=>true);
-            if(otherClubs.length){ otherClubs.forEach(oc => { otherHtml += `<div class="other-club">${escapeHtml(oc.name)} ${oc.year.includes('All Years') ? 'All Years' : escapeHtml(oc.year.join(', '))}</div>`; }); }
-
+            if(otherClubs.length){ otherClubs.forEach(oc => { otherHtml += `<div class="other-club" style="margin-bottom:6px;">${escapeHtml(oc.name)} ${oc.year.includes('All Years') ? 'All Years' : escapeHtml(oc.year.join(', '))}</div>`; }); }
             html += `<td>${primaryHtml}${otherHtml}</td>`;
           }
         });
         html += `</tr>`;
       });
-
       html += `</tbody></table></div>`;
       return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${styles}</head><body>${html}</body></html>`;
     }
 
     function printViaIframe(html){ const iframe = document.getElementById('print-iframe'); const doc = iframe.contentDocument || iframe.contentWindow.document; doc.open(); doc.write(html); doc.close(); setTimeout(()=>{ try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print — please use your browser print command.'); } }, 500); }
 
-    // Print handlers
-    document.getElementById('print-year-main').addEventListener('click', ()=>{ const y = yearFilterEl.value; if(!y){ alert('Please select a year group to print the full year timetable.'); return; } const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y)); const html = createPrintableTimetableHTML({ title: `Year ${y} Timetable`, clubsArray: clubsForYear, forPersonal:false }); printViaIframe(html); });
+    // Year print
+    printYearMainBtn.addEventListener('click', ()=>{ const y = yearFilterEl.value; if(!y){ alert('Please select a year group to print the full year timetable.'); return; } const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y)); const html = createPrintableTimetableHTML({ title: `Year ${y} Timetable`, clubsArray: clubsForYear, forPersonal:false }); printViaIframe(html); });
 
-    document.getElementById('print-personal').addEventListener('click', ()=>{
-      // personal print: include any currently selected clubs. If user has deselected some in the past but they exist in storage, include them as "other" below
+    // Personal print
+    printPersonalBtn.addEventListener('click', ()=>{
       const currentSelected = clubsData.filter(c => selectedClubs.has(c.urn));
-      // Determine previously selected but now unselected from localStorage
       let stored = [];
       try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) stored = JSON.parse(raw); }catch(e){}
       const previously = clubsData.filter(c => stored.includes(c.urn) && !selectedClubs.has(c.urn));
-      // For printing personal, we'll show currentSelected as primary; previously unselected will be shown as other (inline)
       const html = createPrintableTimetableHTML({ title: `My selected clubs timetable`, clubsArray: currentSelected.concat(previously), forPersonal:true });
       printViaIframe(html);
     });
@@ -514,9 +534,12 @@
       activeFiltersSummary.textContent = parts.length ? parts.join(' | ') : 'All clubs shown';
     }
 
-    // Save/load selections
     function loadSelections(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return; const arr = JSON.parse(raw); if(Array.isArray(arr)) arr.forEach(u=>selectedClubs.add(String(u))); }catch(e){ console.warn('Failed to load selections', e); } }
     function saveSelections(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedClubs))); }catch(e){ console.warn('Failed to save selections', e); } }
+
+    // fix search-year interaction: ensure year parsing splits on spaces too (handled in fetch)
+    searchInputEl.addEventListener('input', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
+    departmentFilter.addEventListener('change', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
 
     // Init
     loadSelections(); fetchClubsCSV(); updatePrintHelperText();
@@ -524,6 +547,7 @@
   </script>
 </body>
 </html>
+
 
 
 
