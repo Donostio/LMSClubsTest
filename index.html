@@ -373,7 +373,7 @@ function updatePrintControls(){
   // Helper text: only show if no clubs selected
   if(selectedClubs.size === 0){
     const helper = document.createElement('span');
-    helper.textContent = 'Select clubs below to highlight them on your timetable';
+    helper.textContent = 'Select clubs to highlight them on your timetable';
     helper.style.color = 'var(--muted)';
     helper.style.marginLeft = '8px';
     printControlsEl.appendChild(helper);
