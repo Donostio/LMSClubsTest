@@ -50,7 +50,7 @@
 
   <div class="page" role="main">
     <header class="top">
-      <h1>Lady Margaret* School — Clubs 2025-26</h1>
+      <h1>Lady Margaret School — Clubs 2025-26</h1>
       <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false" style="background:#7c3aed;color:#fff;padding:10px;border-radius:10px;border:none;cursor:pointer;">Filters</button>
     </header>
 
@@ -275,6 +275,13 @@ function clubMatchesFilter(club, f){
 /* -----------------------------
    Render club cards
    ----------------------------- */
+function specialClubNoteHTML(name){
+  if(!name) return '';
+  const n = name.toLowerCase();
+  if(n.includes('lunch club')) return ' <strong>12:45 start</strong>';
+  if(n.includes('chamber choir') || n.includes('orchestra')) return ' <strong>16:45 finish</strong>';
+  return '';
+}
 
 function renderClubs(){
   const f = getActiveFilters();
