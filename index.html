@@ -189,7 +189,7 @@ document.addEventListener('click', ()=>{ interactionCount++; if(interactionCount
 document.addEventListener('mousemove', ()=>{ interactionCount++; if(interactionCount >= nextShow){ triggerRandomCat(); interactionCount = 0; nextShow = 20 + Math.floor(Math.random()*60); } });
 
 // test run on load
-window.addEventListener('load', ()=>{ try{ showAscendingCatForTesting(); }catch(e){} });
+//window.addEventListener('load', ()=>{ try{ showAscendingCatForTesting(); }catch(e){} });
 
 /* -----------------------------
    CSV fetch & parsing
