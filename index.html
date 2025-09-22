@@ -113,7 +113,7 @@
   border-radius: 0.75rem;
 }
 .cat-container.ascending-cat img {
-  transform: scale(3);
+  transform: scale(4);
 }
     </style>
 </head>
@@ -322,7 +322,7 @@
                 catContainer.style.overflow = 'hidden'; // Prevent any spillover
                 
                 // Set up the scaled cat image properly
-                catImageElement.style.width = '450px'; // 150px * 3 = 450px for scale(3) effect
+                catImageElement.style.width = '600px'; // 150px * 4 = 600px for scale(4) effect
                 catImageElement.style.height = 'auto';
                 catImageElement.style.borderRadius = '0.75rem';
                 catImageElement.style.display = 'block';
@@ -682,7 +682,7 @@
             catImageElement.src = selectedCatImage;
             
             // Set up the scaled cat image properly
-            catImageElement.style.width = '450px'; // 150px * 3 = 450px for scale(3) effect
+            catImageElement.style.width = '600px'; // 150px * 4 = 600px for scale(4) effect
             catImageElement.style.height = 'auto';
             catImageElement.style.borderRadius = '0.75rem';
             catImageElement.style.display = 'block';
@@ -723,7 +723,7 @@
         };
 
         // Call the test function on page load
-        //document.addEventListener('DOMContentLoaded', showAscendingCatForTesting);
+        document.addEventListener('DOMContentLoaded', showAscendingCatForTesting);
         // END OF TEMPORARY CODE
     </script>
 
