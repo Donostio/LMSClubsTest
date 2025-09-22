@@ -389,7 +389,7 @@ function renderClubs(){
       if(e.target.checked){
         // Check for duplicate clubs
         if(checkForDuplicateClub(club)){
-          showToastMessage('You two clubs at the same time...', card);
+          showToastMessage('You have two clubs at the same time!', card);
         }
         selectedClubs.add(club.urn);
         card.classList.add('selected');
