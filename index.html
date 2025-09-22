@@ -364,7 +364,7 @@ function updatePrintControls(){
     const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y));
     const selected = clubsForYear.filter(c => selectedClubs.has(c.urn));
     const others = clubsForYear.filter(c => !selectedClubs.has(c.urn));
-    const title = `Year ${y} Clubs Timetable`;
+    const title = `My Year ${y} Clubs Timetable`;
     const html = createPrintHTML(title, selected, others, { showOtherTitle:false });
     printViaIframe(html);
   });
@@ -419,7 +419,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   if(options.showOtherTitle){
     html += `<div style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`;
   }
-  html += `<table><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
+  html += `<table><thead><tr><th style="width:16%;"></th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
   whens.forEach(w=>{
     html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '12:45-13:30' : '15:30-16:30'}</div></th>`;
     days.forEach(d=>{
