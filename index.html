@@ -21,6 +21,9 @@
 
     .container { max-width:1180px; margin:22px auto; padding:18px; }
 
+    /* Title area white background */
+    header.card { background:#fff; padding:18px; border-radius:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+
     /* ----- Cats animation styles (restored from original) ----- */
     .cat-container { position: fixed; z-index: 100; pointer-events: none; will-change: transform; }
     .cat-container.from-top { top: 0; left: 50%; transform: translate(-50%, -100vh); transition: transform 0.8s ease-out; }
@@ -41,7 +44,11 @@
     .club-selected { box-shadow: 0 0 0 3px rgba(0,0,0,1), 0 0 0 6px rgba(239,68,68,0.95); border: 2px solid rgba(239,68,68,0.9); }
     .club-select-box { position: absolute; right: 12px; bottom: 12px; }
 
-    #year-filter { width:160px; }
+    /* enforce card text black, but keep where/who muted */
+    .club-card { color:#111; background:#fff; }
+    .club-card .muted { color:#6b7280; }
+
+    #year-filter { width:20%; min-width:80px; }
     #year-filter option[value=""] { color: #ef4444; font-weight:700; }
 
     /* Cards grid, landscape friendly */
@@ -49,15 +56,14 @@
     .club-card { background: #fff; border: 1px solid #e6e6e6; padding: 14px; border-radius: 12px; position: relative; transition: box-shadow .15s ease, transform .12s ease; }
     .club-card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.06); transform: translateY(-3px); }
 
+    /* make buttons white */
+    .btn-white { background:#fff; border:1px solid #e6e6e6; padding:8px 12px; border-radius:8px; cursor:pointer; }
+
     /* Filter panel (slide-in) */
     .filter-panel { position: fixed; right: 0; top: 0; height: 100%; width: 360px; max-width: 90%; background: #fff; box-shadow: -20px 20px 60px rgba(0,0,0,0.12); transform: translateX(110%); transition: transform .28s cubic-bezier(.2,.9,.3,1); z-index: 1200; padding: 20px; overflow: auto; }
     .filter-panel.is-active { transform: translateX(0); }
     .filter-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1190; opacity: 0; transition: opacity .2s ease; pointer-events: none; }
     .filter-overlay.is-active { opacity: 1; pointer-events: auto; }
-
-    /* Floating print controls (hidden on print) */
-    #floating-print-controls { position: fixed; right: 18px; bottom: 18px; z-index: 1300; display:flex; gap:10px; align-items:center; }
-    #floating-print-controls.hidden { display:none; }
 
     /* Print/page styles */
     @media print {
@@ -65,11 +71,12 @@
       body * { visibility: hidden; }
       #printable-area, #printable-area * { visibility: visible; }
       /* Hide interactive UI */
-      #filter-panel, #filter-btn, #search-input, #floating-print-controls, .filter-overlay { display: none !important; }
+      #filter-panel, #filter-btn, #search-input, #print-year-main, #print-personal, .filter-overlay { display: none !important; }
+      body { background:#fff; }
     }
 
     /* Print table compacting */
-    .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10pt; }
+    .print-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 10pt; color:#000; }
     .print-table th, .print-table td { padding: 6px; border: 1px solid #d1d5db; vertical-align: top; }
     .print-other { font-style: italic; color: #6b7280; font-size: 10pt; }
 
@@ -77,26 +84,27 @@
 </head>
 <body>
   <div class="container">
-    <header style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;">
+    <header class="card">
       <div style="display:flex;align-items:center;gap:12px;">
         <div style="width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#111,#333);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;">LMS</div>
         <div>
-          <h1 style="margin:0;font-weight:700;font-size:22px;">LMS TEST Clubs 2025-26</h1>
+          <h1 style="margin:0;font-weight:700;font-size:22px;">Lady Margaret School Clubs 2025-26</h1>
           <p style="margin:0;color:#6b7280;font-size:13px;">Browse clubs & print timetables</p>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
-        <button id="filter-btn" class="filter-btn" aria-expanded="false" title="Open filters" style="display:inline-flex;align-items:center;gap:8px;background:#7c3aed;color:#fff;padding:8px 12px;border-radius:10px;border:none;cursor:pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M6 12h12M10 18h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button id="filter-btn" class="btn-white" aria-expanded="false" title="Open filters" style="display:inline-flex;align-items:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M6 12h12M10 18h4" stroke="#7c3aed" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Filters
         </button>
       </div>
     </header>
 
-    <section style="margin-bottom:18px;display:flex;gap:18px;align-items:flex-start;">
-      <div style="flex:1;min-width:260px;">
+    <!-- Controls (year + message). Year select reduced width. -->
+    <section style="margin-bottom:8px;display:flex;gap:18px;align-items:flex-start;">
+      <div style="min-width:160px;">
         <label for="year-filter" style="display:block;font-weight:600;margin-bottom:6px;">Year Group</label>
-        <select id="year-filter" style="width:100%;padding:10px;border-radius:10px;border:1px solid #e5e7eb;">
+        <select id="year-filter" style="padding:10px;border-radius:10px;border:1px solid #e5e7eb;">
           <option value="">All</option>
           <option value="7">7</option>
           <option value="8">8</option>
@@ -106,27 +114,26 @@
           <option value="12">12</option>
           <option value="13">13</option>
         </select>
-        <div style="display:flex;gap:10px;align-items:center;margin-top:8px;">
-          <button id="print-year-main" style="display:none;background:linear-gradient(90deg,#ef4444,#000);color:#fff;padding:10px 14px;border-radius:10px;border:none;font-weight:700;cursor:pointer;">Print Year-group Timetable</button>
-          <button id="print-personal" style="display:none;background:#111827;color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;">Print my selected-clubs</button>
-          <div style="color:#6b7280;font-size:13px;margin-left:6px;">Select a year to enable club selection & printing</div>
-        </div>
+        <div id="year-helper" style="color:#6b7280;font-size:13px;margin-top:8px;">Select a year to enable club selection & printing</div>
       </div>
 
-      <div style="width:320px;">
-        <label style="display:block;font-weight:600;margin-bottom:6px;">Search</label>
-        <input id="search-input" placeholder="Search clubs..." style="width:100%;padding:10px;border-radius:10px;border:1px solid #e5e7eb;" />
-      </div>
+      <!-- Spacer. SEARCH moved below the title area and above the cards per request -->
     </section>
+
+    <!-- Search placed above cards -->
+    <div style="margin-bottom:12px;background:#fff;padding:12px;border-radius:10px;">
+      <input id="search-input" placeholder="Search for a club..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;" />
+    </div>
 
     <main>
       <div id="active-filters-summary" style="margin-bottom:8px;color:#6b7280;font-size:13px;">All clubs shown</div>
+
       <div id="clubs-list" class="grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
       <div id="no-results" style="display:none;margin-top:28px;color:#6b7280;">No clubs found matching your criteria.</div>
     </main>
 
     <footer style="margin-top:32px;color:#6b7280;font-size:13px;">
-      <p>This site is maintained by LMS class reps</p>
+      <p>This site is maintained by LMS class reps🚀</p>
       <p>Your feedback helps us make the site better for everyone. <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener noreferrer" style="color:#ef4444;font-weight:600;">Please share your thoughts here 💬</a></p>
     </footer>
   </div>
@@ -139,19 +146,21 @@
       <button id="close-filter-btn" aria-label="Close filters" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">✕</button>
     </div>
 
-    <div style="margin-bottom:12px;">
+    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
       <label style="font-weight:600;display:block;margin-bottom:6px;">Day</label>
-      <div id="day-filter" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <button id="clear-day-btn" class="btn-white" style="font-size:12px;">Clear</button>
     </div>
+    <div id="day-filter" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
 
-    <div style="margin-bottom:12px;">
+    <div style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
       <label style="font-weight:600;display:block;margin-bottom:6px;">When</label>
-      <div id="when-filter" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <button id="clear-when-btn" class="btn-white" style="font-size:12px;">Clear</button>
     </div>
+    <div id="when-filter" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
 
     <div style="margin-bottom:12px;">
       <label style="font-weight:600;display:block;margin-bottom:6px;">Department</label>
-      <select id="department-filter" style="width:100%; padding:8px;border-radius:8px;border:1px solid #e5e7eb;">
+      <select id="department-filter" style="width:100%; padding:8px;border-radius:8px;border:1px solid #e5e7eb; background:#fff;">
         <option value="">All</option>
       </select>
     </div>
@@ -162,14 +171,14 @@
     </div>
 
     <div style="margin-top:auto;">
-      <button id="clear-filters-btn" style="width:100%;padding:10px;border-radius:10px;border:1px solid #e6e6e6;background:#fff;cursor:pointer;">Clear all filters</button>
+      <button id="clear-filters-btn" class="btn-white" style="width:100%;padding:10px;border-radius:10px;border:1px solid #e6e6e6;background:#fff;cursor:pointer;">Clear all filters</button>
     </div>
   </aside>
 
-  <!-- Floating print controls (hidden until selection) -->
-  <div id="floating-print-controls" class="hidden" aria-hidden="true" style="position:fixed;right:18px;bottom:18px;z-index:1300;display:flex;gap:10px;align-items:center;">
-    <button id="print-my-btn" style="padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,#ef4444,#000);color:#fff;font-weight:700;cursor:pointer;">Print Year-group Timetable</button>
-    <button id="print-personal-btn" style="background:#111827;color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;display:none;">Print my selected-clubs</button>
+  <!-- Fixed print buttons only (removed floating bottom-right controls) -->
+  <div style="position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;flex-direction:column;gap:8px;">
+    <button id="print-year-main" style="display:none;background:linear-gradient(90deg,#ef4444,#000);color:#fff;padding:10px 14px;border-radius:10px;border:none;font-weight:700;">Print Year-group Timetable</button>
+    <button id="print-personal" style="display:none;background:#111827;color:#fff;padding:8px 12px;border-radius:8px;border:none;">Print my selected-clubs</button>
   </div>
 
   <iframe id="print-iframe" style="display:none; width:0; height:0;"></iframe>
@@ -245,7 +254,7 @@
       }
     };
 
-    // Keep a test call available (unchanged)
+    // Exposed test function to trigger ascending cat
     const showAscendingCatForTesting = () => { showCat(); };
 
     document.addEventListener('click', handleInteraction);
@@ -259,8 +268,7 @@
     const clubsListEl = document.getElementById('clubs-list');
     const yearFilterEl = document.getElementById('year-filter');
     const printYearMainBtn = document.getElementById('print-year-main');
-    const printMyBtnFloating = document.getElementById('print-my-btn');
-    const printPersonalFloating = document.getElementById('print-personal-btn');
+    const printPersonalBtn = document.getElementById('print-personal');
     const filterBtnEl = document.getElementById('filter-btn');
     const filterPanelEl = document.getElementById('filter-panel');
     const filterOverlayEl = document.getElementById('filter-overlay');
@@ -271,7 +279,8 @@
     const departmentFilter = document.getElementById('department-filter');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
     const activeFiltersSummary = document.getElementById('active-filters-summary');
-    const searchInput = document.getElementById('search-input');
+    const searchInputEl = document.getElementById('search-input');
+    const yearHelper = document.getElementById('year-helper');
 
     const STORAGE_KEY = 'lms_selected_clubs_v1';
 
@@ -284,7 +293,7 @@
 
     function detectWeekFlag(weeksRaw){ if(!weeksRaw) return ''; const w = weeksRaw.replace(/\s+/g,'').toLowerCase(); if (w === '1&2' || w === '1and2' || w === '1-2' || w === '12' || w === '1/2') return ''; if (w.includes('1') && !w.includes('2')) return ' (W1-only)'; if (w.includes('2') && !w.includes('1')) return ' (W2-only)'; if (w.includes('w1') && !w.includes('w2')) return ' (W1-only)'; if (w.includes('w2') && !w.includes('w1')) return ' (W2-only)'; return ''; }
 
-    function specialClubNote(name){ if(!name) return ''; const n=name.toLowerCase(); if(n.includes('lunch club')) return ' — 12:45 start'; if(n.includes('chamber choir')) return ' — 16:45 finish'; if(n.includes('orchestra')) return ' — 16:45 finish'; return ''; }
+    function specialClubNoteHTML(name){ if(!name) return ''; const n=name.toLowerCase(); if(n.includes('lunch club')) return ' <strong>12:45 start</strong>'; if(n.includes('chamber choir')||n.includes('orchestra')) return ' <strong>16:45 finish</strong>'; return ''; }
 
     async function fetchClubsCSV(){
       try{
@@ -308,14 +317,13 @@
       clubNameFilterContainer.innerHTML = '';
       const uniqueNames = [...new Set(clubsData.map(c=>c.name).filter(Boolean))].sort((a,b)=> a.localeCompare(b));
       uniqueNames.forEach(n=>{ const el=document.createElement('label'); el.style.display='flex'; el.style.alignItems='center'; el.style.gap='6px'; el.innerHTML = `<input type="checkbox" name="club-name-filter" value="${escapeHtml(n)}" /> <span style="font-size:13px;color:#334155">${escapeHtml(n)}</span>`; clubNameFilterContainer.appendChild(el); });
-      // departments list
-      const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort(); departmentFilter.innerHTML = '<option value="">All</option>' + depts.map(d=>`<option>${d}</option>`).join('');
+      const depts = [...new Set(clubsData.map(c=>c.department).filter(Boolean))].sort(); departmentFilter.innerHTML = '<option value="">All</option>' + depts.map(d=>`<option>${escapeHtml(d)}</option>`).join('');
     }
 
     function getActiveFilters(){
       const year = yearFilterEl.value;
       const dept = departmentFilter.value;
-      const search = (searchInput.value || '').trim().toLowerCase();
+      const search = (searchInputEl.value || '').trim().toLowerCase();
       const selectedDays = Array.from(document.querySelectorAll('#day-filter input[name="day-filter"]:checked')).map(i=>i.value);
       const selectedWhens = Array.from(document.querySelectorAll('#when-filter input[name="when-filter"]:checked')).map(i=>i.value);
       const selectedClubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name-filter"]:checked')).map(i => i.value);
@@ -338,133 +346,161 @@
       clubsListEl.innerHTML = '';
       if(filtered.length === 0) { document.getElementById('no-results').style.display = 'block'; } else { document.getElementById('no-results').style.display = 'none'; }
       filtered.forEach(club => {
-        const card = document.createElement('div'); card.className = 'club-card'; card.style.minHeight = '100px';
+        const card = document.createElement('div'); card.className = 'club-card'; card.style.minHeight = '120px';
         if(selectedClubs.has(club.urn)) card.classList.add('club-selected');
+
+        // Year display: if a specific year is selected (not empty) show the label 'Years:' in grey
+        let yearHtml = '';
+        if(club.year.includes('All Years')){
+          yearHtml = 'All Years';
+        } else {
+          if(yearFilterEl.value){ yearHtml = `<span class="muted">Years:</span> ${escapeHtml(club.year.join(', '))}`; }
+          else { yearHtml = escapeHtml(club.year.join(', ')); }
+        }
+
+        // special notes
+        const specialNote = specialClubNoteHTML(club.name);
+
         card.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:start;gap:8px;">
             <div style="flex:1;">
-              <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${escapeHtml(club.name)}</div>
-              <div style="font-size:13px;color:#475569;margin-bottom:6px;">${escapeHtml(club.day)} • ${escapeHtml(club.when)}</div>
-              <div style="font-size:12px;color:#6b7280;">${club.year.includes('All Years') ? 'All Years' : escapeHtml(club.year.join(', '))}</div>
-              <div style="font-size:12px;color:#6b7280;margin-top:6px;">Where: ${escapeHtml(club.location)} • Who: ${escapeHtml(club.staff)} • ${escapeHtml(club.time || '')}</div>
+              <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${escapeHtml(club.name)}</div>
+              <div style="font-size:13px;color:#111;margin-bottom:6px;">Day: <strong>${escapeHtml(club.day)}</strong></div>
+              <div style="font-size:13px;color:#111;margin-bottom:6px;">When: <strong>${escapeHtml(club.when)}</strong></div>
+              <div style="font-size:12px;margin-bottom:6px;">${yearHtml}</div>
+              <div style="font-size:12px;color:#6b7280;margin-top:6px;">Where: <span style='color:#6b7280;'>${escapeHtml(club.location)}</span> • Who: <span style='color:#6b7280;'>${escapeHtml(club.staff)}</span>${specialNote}</div>
             </div>
           </div>
         `;
+
         const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
         const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.value = club.urn; checkbox.className = 'club-select-checkbox'; checkbox.checked = selectedClubs.has(club.urn);
         checkbox.disabled = !( (yearFilterEl.value && yearFilterEl.value !== '') || selectedClubs.has(club.urn) );
         checkbox.title = checkbox.disabled ? 'Select a year group to enable selection' : 'Select this club';
-        checkbox.addEventListener('change', (e) => { if(e.target.checked){ selectedClubs.add(club.urn); card.classList.add('club-selected'); } else { selectedClubs.delete(club.urn); card.classList.remove('club-selected'); } saveSelectionsToStorage(); updateFloatingPrintVisibility(); });
+        checkbox.addEventListener('change', (e) => { if(e.target.checked){ selectedClubs.add(club.urn); card.classList.add('club-selected'); yearHelper.style.display = 'none'; } else { selectedClubs.delete(club.urn); card.classList.remove('club-selected'); } saveSelectionsToStorage(); updateFloatingPrintVisibility(); updatePrintHelperText(); });
         cbWrap.appendChild(checkbox); card.appendChild(cbWrap); clubsListEl.appendChild(card);
       });
       updateFloatingPrintVisibility(); updateActiveFiltersSummary();
     }
 
-    function updateFloatingPrintVisibility(){ if(selectedClubs.size > 0){ document.getElementById('floating-print-controls').classList.remove('hidden'); printPersonalFloating.style.display = 'inline-block'; } else { document.getElementById('floating-print-controls').classList.add('hidden'); printPersonalFloating.style.display = 'none'; } }
+    function updateFloatingPrintVisibility(){ if(selectedClubs.size > 0){ printPersonalBtn.style.display = 'inline-block'; } else { printPersonalBtn.style.display = 'none'; } }
 
-    yearFilterEl.addEventListener('change', () => { printYearMainBtn.style.display = yearFilterEl.value ? 'inline-block' : 'none'; renderClubs(clubsData); });
+    // Year dropdown change: show the Print Year-group button and update helper text
+    yearFilterEl.addEventListener('change', () => { document.getElementById('print-year-main').style.display = yearFilterEl.value ? 'inline-block' : 'none'; renderClubs(clubsData); updatePrintHelperText(); });
+
+    function updatePrintHelperText(){ if(!yearFilterEl.value){ yearHelper.textContent = 'Select a year to enable club selection & printing'; yearHelper.style.display = 'block'; } else {
+        if(selectedClubs.size === 0){ yearHelper.textContent = 'To print a timetable with chosen clubs only, select them below'; yearHelper.style.display = 'block'; }
+        else { yearHelper.style.display = 'none'; }
+      } }
 
     // Filter panel open/close
     filterBtnEl.addEventListener('click', () => { filterPanelEl.classList.add('is-active'); filterOverlayEl.classList.add('is-active'); filterBtnEl.setAttribute('aria-expanded','true'); });
     closeFilterBtn.addEventListener('click', () => { filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false'); });
     filterOverlayEl.addEventListener('click', () => { filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false'); });
 
-    // Wire panel interactions
-    filterPanelEl.addEventListener('change', (e) => { if(!e.target) return; const el = e.target; if(el.name === 'day-filter' && el.value === 'All' && el.checked){ filterPanelEl.querySelectorAll('#day-filter input').forEach(i=>{ if(i.value !== 'All') i.checked = false; }); } else if(el.name === 'when-filter' && el.value === 'All' && el.checked){ filterPanelEl.querySelectorAll('#when-filter input').forEach(i=>{ if(i.value !== 'All') i.checked = false; }); } renderClubs(clubsData); });
+    // Panel behavior: when 'All' is checked, uncheck others; when specific checked uncheck 'All'
+    filterPanelEl.addEventListener('change', (e) => {
+      if(!e.target) return; const el = e.target;
+      if(el.name === 'day-filter'){
+        if(el.value === 'All' && el.checked){ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>{ if(i.value !== 'All') i.checked = false; }); }
+        else if(el.checked && el.value !== 'All'){ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>{ if(i.value === 'All') i.checked = false; }); }
+      }
+      if(el.name === 'when-filter'){
+        if(el.value === 'All' && el.checked){ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>{ if(i.value !== 'All') i.checked = false; }); }
+        else if(el.checked && el.value !== 'All'){ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>{ if(i.value === 'All') i.checked = false; }); }
+      }
+      renderClubs(clubsData);
+    });
 
-    clearFiltersBtn.addEventListener('click', () => { departmentFilter.value = ''; searchInput.value = ''; yearFilterEl.value = ''; printYearMainBtn.style.display = 'none'; filterPanelEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = cb.value === 'All'); renderClubs(clubsData); });
+    // Clear buttons next to Day and When
+    document.getElementById('clear-day-btn').addEventListener('click', ()=>{ dayFilterContainer.querySelectorAll('input[name="day-filter"]').forEach(i=>i.checked = i.value === 'All'); renderClubs(clubsData); });
+    document.getElementById('clear-when-btn').addEventListener('click', ()=>{ whenFilterContainer.querySelectorAll('input[name="when-filter"]').forEach(i=>i.checked = i.value === 'All'); renderClubs(clubsData); });
 
-    searchInput.addEventListener('input', () => renderClubs(clubsData));
-    departmentFilter.addEventListener('change', () => renderClubs(clubsData));
+    // Clear all
+    clearFiltersBtn.addEventListener('click', () => { departmentFilter.value = ''; searchInputEl.value = ''; yearFilterEl.value = ''; document.getElementById('print-year-main').style.display = 'none'; filterPanelEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = cb.value === 'All'); renderClubs(clubsData); updateActiveFiltersSummary(); filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); });
+
+    searchInputEl.addEventListener('input', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
+    departmentFilter.addEventListener('change', () => { renderClubs(clubsData); updateActiveFiltersSummary(); });
 
     function buildGridForClubs(clubsArray){ const days = ['Monday','Tuesday','Wednesday','Thursday','Friday']; const whens = ['Before School','Lunchtime','After School']; const times = { 'Before School':'08:00-08:30', 'Lunchtime':'12:45-13:30', 'After School':'15:30-16:30' }; const grid = {}; whens.forEach(w=>{ grid[w] = {}; days.forEach(d=>{ grid[w][d] = []; }); }); clubsArray.forEach(club=>{ const when = club.when || 'After School'; const day = club.day || ''; if(grid[when] && grid[when][day]) grid[when][day].push(club); }); return { grid, days, whens, times }; }
 
-    // Create printable timetable HTML (landscape, no headers/footers/datetime)
-    function createPrintableTimetableHTML({ title, clubsArray }){
+    function createPrintableTimetableHTML({ title, clubsArray, forPersonal=false }){
       const { grid, days, whens, times } = buildGridForClubs(clubsArray);
       const styles = `
         <style>
           @page { size: landscape; margin: 12mm; }
-          body { font-family: Inter, Arial, sans-serif; color:#111827; margin:0; padding:12px; }
+          body { font-family: Inter, Arial, sans-serif; color:#000; margin:0; padding:12px; }
           h1 { font-size:18pt; margin:0 0 6px 0; }
-          .meta { color:#6b7280; font-size:10pt; margin-bottom:8px; }
           table.print-table { width:100%; border-collapse:collapse; table-layout:fixed; }
           th, td { border:1px solid #e6e6e6; padding:6px; vertical-align:top; word-break:break-word; }
           th { background:#f8fafc; font-weight:700; text-align:left; font-size:11pt; }
-          td { font-size:10pt; }
-          .club-block { margin-bottom:6px; padding:4px; border-radius:6px; background:#fff; }
-          .other-club { font-style:italic; color:#6b7280; font-size:10pt; }
+          td { font-size:10pt; color:#000; }
+          .club-name { font-weight:700; }
+          .other-club { font-style:italic; color:#6b7280; }
         </style>
       `;
 
       let html = `<div id="printable-area"><h1>${escapeHtml(title)}</h1>`;
-      html += `<div class="meta" style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`;
+
+      // For Year-group print we DO NOT show the "Other clubs available to me" title as requested
+      if(forPersonal){
+        // if personal print and user has no selected clubs then include the header
+        if(clubsArray.length === 0){ html += `<div class="other-club" style="margin-bottom:8px;">Other clubs available to me</div>`; }
+      }
+
       html += `<table class="print-table"><thead><tr><th style="width:16%">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
 
       whens.forEach(w => {
-        html += `<tr><th style="width:16%">${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${times[w]}</div></th>`;
+        html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${times[w]}</div></th>`;
         days.forEach(d => {
           const cellClubs = grid[w][d] || [];
           if(!cellClubs.length){ html += `<td style="min-height:70px;">—</td>`; }
           else{
-            // Separate clubs that are "in-year" vs "other" (other = not all years and not matching selected year if filtering by year)
-            let visibleHtml = '';
+            let primaryHtml = '';
             let otherHtml = '';
+
+            // Primary clubs: show club name (bold) and merged year label if appropriate, omit specific time slot in print
             cellClubs.forEach(club => {
-              // We'll treat clubs that match the requested year OR are 'All Years' as primary; others as "other"
-              visibleHtml += `<div class="club-block"><strong>${escapeHtml(club.name)}</strong>`;
-              visibleHtml += `<div style="font-size:10pt;color:#374151;">${club.year.includes('All Years') ? 'All Years' : escapeHtml(club.year.join(', '))} — ${escapeHtml(club.location)}${club.staff ? ' • ' + escapeHtml(club.staff) : ''}${club.time ? ' • ' + escapeHtml(club.time) : ''}</div>`;
-              visibleHtml += `</div>`;
+              const yearText = club.year.includes('All Years') ? 'All Years' : (yearFilterEl.value ? `Years: ${club.year.join(', ')}` : club.year.join(', '));
+              primaryHtml += `<div><div class="club-name">${escapeHtml(club.name)}</div>`;
+              primaryHtml += `<div style="font-size:10pt;color:#000;">${escapeHtml(yearText)}${specialClubNoteHTML(club.name) ? `<span> ${specialClubNoteHTML(club.name)}</span>` : ''}</div>`;
+              primaryHtml += `</div>`;
             });
 
-            // For "other available clubs" we will include any clubs in the same slot that might not have been the primary focus — in grey italics
-            const otherClubs = cellClubs.filter(c => true); // since we always include other clubs now, we'll include them in the "other" block as well
+            // Other clubs: For year-group print we still include other clubs inline in cells (grey italic) but no separate title
+            const otherClubs = cellClubs.filter(c=>true);
+            if(otherClubs.length){ otherClubs.forEach(oc => { otherHtml += `<div class="other-club">${escapeHtml(oc.name)} ${oc.year.includes('All Years') ? 'All Years' : escapeHtml(oc.year.join(', '))}</div>`; }); }
 
-            if(otherClubs.length){
-              // Deduplicate names already shown (we show everything above as visibleHtml; user asked that other clubs appear in grey italics inside the cell)
-              let otherParts = '';
-              otherClubs.forEach(oc => { otherParts += `<div class="other-club">${escapeHtml(oc.name)} ${oc.year.includes('All Years') ? 'All Years' : escapeHtml(oc.year.join(', '))}</div>`; });
-              otherHtml = otherParts;
-            }
-
-            html += `<td>${visibleHtml}${otherHtml}</td>`;
+            html += `<td>${primaryHtml}${otherHtml}</td>`;
           }
         });
         html += `</tr>`;
       });
 
       html += `</tbody></table></div>`;
-      return `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title>${styles}</head><body>${html}</body></html>`;
+      return `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>${styles}</head><body>${html}</body></html>`;
     }
 
-    function printViaIframe(html){ const iframe = document.getElementById('print-iframe'); const doc = iframe.contentDocument || iframe.contentWindow.document; doc.open(); doc.write(html); doc.close(); setTimeout(()=>{ try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ console.warn('Print failed', e); alert('Unable to trigger print — please use your browser print command.'); } }, 500); }
+    function printViaIframe(html){ const iframe = document.getElementById('print-iframe'); const doc = iframe.contentDocument || iframe.contentWindow.document; doc.open(); doc.write(html); doc.close(); setTimeout(()=>{ try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print — please use your browser print command.'); } }, 500); }
 
     // Print handlers
-    document.getElementById('print-year-main').addEventListener('click', ()=>{ const y = yearFilterEl.value; if(!y){ alert('Please select a year group to print the full year timetable.'); return; } const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y)); const html = createPrintableTimetableHTML({ title: `Year ${y} Timetable`, clubsArray: clubsForYear }); printViaIframe(html); });
-    document.getElementById('print-personal').addEventListener('click', ()=>{ const clubs = clubsData.filter(c => selectedClubs.has(c.urn)); const html = createPrintableTimetableHTML({ title: `My selected clubs timetable`, clubsArray: clubs }); printViaIframe(html); });
+    document.getElementById('print-year-main').addEventListener('click', ()=>{ const y = yearFilterEl.value; if(!y){ alert('Please select a year group to print the full year timetable.'); return; } const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y)); const html = createPrintableTimetableHTML({ title: `Year ${y} Timetable`, clubsArray: clubsForYear, forPersonal:false }); printViaIframe(html); });
+
+    document.getElementById('print-personal').addEventListener('click', ()=>{
+      // personal print: include any currently selected clubs. If user has deselected some in the past but they exist in storage, include them as "other" below
+      const currentSelected = clubsData.filter(c => selectedClubs.has(c.urn));
+      // Determine previously selected but now unselected from localStorage
+      let stored = [];
+      try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) stored = JSON.parse(raw); }catch(e){}
+      const previously = clubsData.filter(c => stored.includes(c.urn) && !selectedClubs.has(c.urn));
+      // For printing personal, we'll show currentSelected as primary; previously unselected will be shown as other (inline)
+      const html = createPrintableTimetableHTML({ title: `My selected clubs timetable`, clubsArray: currentSelected.concat(previously), forPersonal:true });
+      printViaIframe(html);
+    });
 
     /*********************
-     * Filter panel helpers
+     * Active filter summary
      *********************/
-    function buildFilterOptions(){
-      const uniqueDays = ['All','Monday','Tuesday','Wednesday','Thursday','Friday'];
-      const uniqueTimes = ['All','Before School','Lunchtime','After School'];
-      const uniqueClubNames = [...new Set(clubsData.map(c => c.name))].filter(Boolean).sort();
-
-      dayFilterContainer.innerHTML = '';
-      uniqueDays.forEach(d=>{ const el = document.createElement('label'); el.style.display='inline-flex'; el.style.alignItems='center'; el.style.gap='8px'; el.style.marginBottom='8px'; el.innerHTML = `<input type='checkbox' name='day-filter' value='${d}' ${d==='All'?'checked':''}/> <span style='font-size:14px;color:#374151'>${d}</span>`; dayFilterContainer.appendChild(el); });
-
-      whenFilterContainer.innerHTML = '';
-      uniqueTimes.forEach(w=>{ const el = document.createElement('label'); el.style.display='inline-flex'; el.style.alignItems='center'; el.style.gap='8px'; el.style.marginBottom='8px'; el.innerHTML = `<input type='checkbox' name='when-filter' value='${w}' ${w==='All'?'checked':''}/> <span style='font-size:14px;color:#374151'>${w}</span>`; whenFilterContainer.appendChild(el); });
-
-      clubNameFilterContainer.innerHTML = '';
-      uniqueClubNames.forEach(n=>{ const el = document.createElement('label'); el.style.display='flex'; el.style.alignItems='center'; el.style.gap='6px'; el.innerHTML = `<input type='checkbox' name='club-name-filter' value='${escapeHtml(n)}' /> <span style='font-size:13px;color:#334155'>${escapeHtml(n)}</span>`; clubNameFilterContainer.appendChild(el); });
-
-      // department select filled earlier by populateFilters(); if populateFilters wasn't called yet, build department list now
-      const depts = [...new Set(clubsData.map(c=>c.department))].filter(Boolean).sort(); departmentFilter.innerHTML = '<option value="">All</option>' + depts.map(d=>`<option value='${escapeHtml(d)}'>${escapeHtml(d)}</option>`).join('');
-    }
-
-    // Active filters summary
     function updateActiveFiltersSummary(){
       const parts = [];
       const year = yearFilterEl.value; if(year) parts.push(`Year: ${year}`);
@@ -478,38 +514,17 @@
       activeFiltersSummary.textContent = parts.length ? parts.join(' | ') : 'All clubs shown';
     }
 
-    // Wire up apply/clear controls inside filter panel
-    document.getElementById('clear-filters-btn').addEventListener('click', ()=>{ departmentFilter.value = ''; searchInput.value = ''; yearFilterEl.value = ''; printYearMainBtn.style.display = 'none'; filterPanelEl.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = cb.value === 'All'); renderClubs(clubsData); updateActiveFiltersSummary(); filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); });
-
-    // When user applies filters inside panel, update rendering
-    document.getElementById('apply-filters')?.addEventListener('click', ()=>{
-      // collect selected filter values
-      const days = Array.from(document.querySelectorAll('#day-filter input[name="day-filter"]:checked')).map(i=>i.value);
-      const whens = Array.from(document.querySelectorAll('#when-filter input[name="when-filter"]:checked')).map(i=>i.value);
-      const clubNames = Array.from(document.querySelectorAll('#club-name-filter input[name="club-name-filter"]:checked')).map(i=>i.value);
-      // store activeFilters in a simple global so getActiveFilters uses them
-      // Here we re-render; getActiveFilters reads the UI directly so no extra state needed
-      renderClubs(clubsData);
-      updateActiveFiltersSummary();
-      filterPanelEl.classList.remove('is-active'); filterOverlayEl.classList.remove('is-active'); filterBtnEl.setAttribute('aria-expanded','false');
-    });
-
-    // Save and load selections
+    // Save/load selections
     function loadSelections(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(!raw) return; const arr = JSON.parse(raw); if(Array.isArray(arr)) arr.forEach(u=>selectedClubs.add(String(u))); }catch(e){ console.warn('Failed to load selections', e); } }
     function saveSelections(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedClubs))); }catch(e){ console.warn('Failed to save selections', e); } }
 
-    // Render flow
-    yearFilterEl.addEventListener('change', ()=>{ renderClubs(clubsData); updateButtons(); });
-    searchInput.addEventListener('input', ()=>{ renderClubs(clubsData); updateActiveFiltersSummary(); });
-
-    function updateButtons(){ document.getElementById('print-year-main').style.display = yearFilterEl.value ? 'inline-block' : 'none'; document.getElementById('print-personal').style.display = selectedClubs.size > 0 ? 'inline-block' : 'none'; document.getElementById('floating-print-controls').classList.toggle('hidden', selectedClubs.size === 0); }
-
-    // Initialise
-    loadSelections(); fetchClubsCSV();
+    // Init
+    loadSelections(); fetchClubsCSV(); updatePrintHelperText();
 
   </script>
 </body>
 </html>
+
 
 
 
