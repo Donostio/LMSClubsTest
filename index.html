@@ -532,8 +532,14 @@ let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - 
 let lastCatTime = 0;
 const CAT_MIN_DELAY = 30000; // 30 seconds in milliseconds
 
+// Flag to prevent multiple animations running simultaneously
+let animationInProgress = false;
+
 // Function to show ascending cat specifically
 const showAscendingCat = () => {
+    // Set animation in progress flag
+    animationInProgress = true;
+    
     const catIndex = Math.floor(Math.random() * catImages.length);
     const selectedCatImage = catImages[catIndex];
 
@@ -592,6 +598,9 @@ const showAscendingCat = () => {
                     catContainer.style.cssText = '';
                     catImageElement.style.cssText = '';
                     catImageElement.src = ''; // Clear the image source
+                    
+                    // Clear animation in progress flag
+                    animationInProgress = false;
                 }, 200);
             }, 3000); // Wait for 3s slow slide down to complete
         }, 900); // 0.4s slide up + 0.5s pause
@@ -601,6 +610,9 @@ const showAscendingCat = () => {
 
 // Function to show cat with random slide animation (excluding ascending cat)
 const showCat = () => {
+    // Set animation in progress flag
+    animationInProgress = true;
+    
     const catIndex = Math.floor(Math.random() * catImages.length);
     const selectedCatImage = catImages[catIndex];
 
@@ -622,6 +634,9 @@ const showCat = () => {
     // Slide out after 2 seconds
     setTimeout(() => {
         catContainer.classList.remove('is-active');
+        
+        // Clear animation in progress flag
+        animationInProgress = false;
     }, 2000);
 };
 
@@ -631,6 +646,11 @@ const handleInteraction = () => {
     // Always increment counters
     ascendingCatCount++;
     interactionCount++;
+    
+    // Prevent starting new animations while one is in progress
+    if (animationInProgress) {
+        return;
+    }
     
     // Check if enough time has passed since last cat (30s minimum)
     if ((currentTime - lastCatTime) < CAT_MIN_DELAY) {
@@ -989,7 +1009,20 @@ function printViaIframe(html){
 /* -----------------------------
    Filter panel wiring & helpers
    ----------------------------- */
-filterBtn.addEventListener('click', ()=>{ filterPanel.classList.add('open'); filterOverlay.style.display = 'block'; filterBtn.setAttribute('aria-expanded','true'); });
+filterBtn.addEventListener('click', ()=>{ 
+  // Toggle the filter panel
+  if(filterPanel.classList.contains('open')) {
+    // Close panel
+    filterPanel.classList.remove('open'); 
+    filterOverlay.style.display = 'none'; 
+    filterBtn.setAttribute('aria-expanded','false');
+  } else {
+    // Open panel
+    filterPanel.classList.add('open'); 
+    filterOverlay.style.display = 'block'; 
+    filterBtn.setAttribute('aria-expanded','true');
+  }
+});
 closeFilter.addEventListener('click', ()=>{ filterPanel.classList.remove('open'); filterOverlay.style.display = 'none'; filterBtn.setAttribute('aria-expanded','false'); });
 filterOverlay.addEventListener('click', ()=>{ filterPanel.classList.remove('open'); filterOverlay.style.display = 'none'; filterBtn.setAttribute('aria-expanded','false'); });
 
@@ -1215,12 +1248,17 @@ function initFilterLogic() {
   wireGroup('.club-filter');
 }
 
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, initializing LMS Clubs...');
+  fetchClubsCSV();
+});
+
 // TEST: Trigger ascending cat on page load (disable before deploy)
 // window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
-
 
 
 
