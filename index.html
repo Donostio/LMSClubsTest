@@ -929,7 +929,6 @@ document.getElementById('clear-dept').addEventListener('click', () => {
 
 document.getElementById('clear-all').addEventListener('click', () => {
   searchInputEl.value = '';
-  yearFilterEl.value = '';
   document.getElementById('dept-dropdown').value = '';
   document.querySelectorAll('.day-filter, .when-filter').forEach(c => c.checked = c.value === 'All');
   document.querySelectorAll('.club-filter').forEach(c => c.checked = false);
