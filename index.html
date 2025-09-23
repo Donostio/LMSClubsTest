@@ -711,13 +711,12 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       if(!cell.length){ 
         html += `<td style="min-height:70px;">${cellHtml}—</td>`; 
         return; 
-      }
-      
-      cell.forEach(c=>{
-        if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
-          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
-          cellHtml += `<div class="selected-box"><div class="club-name">${esc(c.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><strong>Where: ${esc(c.location)}, Who: ${esc(c.staff)}</strong></div></div>`;
-        }
+     }
+      cell.forEach(c=>{
+        if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+          cellHtml += `<div class="selected-box"><div class="club-name">${esc(c.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(c.location)}, <span style="color:#6b7280;">Who:</span> ${esc(c.staff)}</div></div>`;
+        }
       });
       cell.forEach(c=>{
         if(othersArr && othersArr.find(o=>o.urn === c.urn)){
