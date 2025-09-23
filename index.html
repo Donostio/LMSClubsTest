@@ -141,7 +141,7 @@
       <div style="text-align: center; margin-bottom: 16px;">
         <img src="images/PTAlogoH.png" alt="LMS PTA Logo" style="height: 60px; max-width: 100%; object-fit: contain;">
       </div>
-      <h1>Lady Margaret School — Clubs 2025-26</h1>
+      <h1>Lady Margaret School   Clubs 2025-26</h1>
       <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false" style="background:#7c3aed;color:#fff;padding:10px;border-radius:10px;border:none;cursor:pointer;">Filters</button>
     </header>
 
@@ -177,7 +177,7 @@
 
 <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:32px;">
   <div style="color:var(--muted);">This site is maintained by the PTA and class reps </div>
-  <div style="margin-top:6px;color:var(--muted);">Feedback: <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red)">Please!!! share your thoughts💬</a></div>
+  <div style="margin-top:6px;color:var(--muted);"Your feedback helps us make the site better for everyone <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red)">Please share your thoughts💬</a></div>
 </div>
 
   <div id="filter-overlay" class="filter-overlay" aria-hidden="true"></div>
@@ -561,7 +561,7 @@ function renderClubs(){
       if(e.target.checked){
         // Check for duplicate clubs
         if(checkForDuplicateClub(club)){
-          showToastMessage('You two clubs at the same time...', card);
+          showToastMessage('You have more than one club then...', card);
         }
         selectedClubs.add(club.urn);
         card.classList.add('selected');
