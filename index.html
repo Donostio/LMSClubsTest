@@ -168,13 +168,15 @@
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
-    <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="icon">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
-      </svg>
-    </button>
   </div>
 </header>
+
+<!-- Floating filter button outside of header -->
+<button id="filter-btn" aria-controls="filter-panel" aria-expanded="false">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="icon">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
+  </svg>
+</button>
 
 <style>
   header.top {
@@ -231,6 +233,19 @@
     background: #7e22ce;
   }
 
+  /* Floating filter button */
+  #filter-btn {
+    position: fixed !important;
+    bottom: 20px;
+    right: 20px;
+    z-index: 50;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  #filter-btn:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
   header button .icon {
     width: 22px;
     height: 22px;
@@ -252,11 +267,15 @@
     header .title {
       font-size: 18px;
       order: 2;
+      margin-top: 30px;
     }
 
     header .actions {
-      order: 3;
+      order: 1;
       gap: 10px;
+      position: absolute;
+      top: 8px;
+      right: 16px;
     }
 
     header .guide-link {
@@ -278,7 +297,7 @@
 
     <section style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
       <div style="min-width:260px;">
-        <label for="year-filter" style="display:block;font-weight:600;margin-bottom:6px;">Year Group</label>
+        <label for="year-filter" style="display:block;font-weight:600;margin-bottom:2px;">Year Group</label>
         <div style="display:flex;align-items:center;gap:8px;">
           <select id="year-filter" aria-label="Year group">
             <option value="">All</option>
@@ -309,7 +328,6 @@
 <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:32px;">
   <div style="color:var(--muted);">This site is maintained by the PTA and class reps 🌹</div>
   <div style="margin-top:6px;color:var(--muted);">
-    <a href="lms_clubs_guide.html" style="color:var(--red);text-decoration:none;margin-right:16px;">Guide to using this site</a>
     Your feedback helps us make the site better for everyone <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red)">Please share your thoughts💬</a>
   </div>
 </div>
@@ -1144,6 +1162,10 @@ function initFilterLogic() {
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
