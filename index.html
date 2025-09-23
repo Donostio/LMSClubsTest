@@ -309,9 +309,9 @@ function checkForDuplicateClub(newClub) {
    Cat animations with proper logic from old site
    ----------------------------- */
 const catImages = [
-    'images/1C.png',
-    'images/2C.png',
-    'images/3.png'
+    'images/11C.png',
+    'images/22C.png',
+    'images/33.png'
 ];
 const catContainer = document.getElementById('cat-container');
 const catImageElement = document.getElementById('cat-image');
@@ -666,7 +666,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   const { grid, days, whens } = buildGridForPrint(combined);
   
   // Select random cat image for print
-  const catImages = ['images/1C.png', 'images/2C.png', 'images/3.png'];
+  const catImages = ['images/11C.png', 'images/22C.png', 'images/33.png'];
   const randomCat = catImages[Math.floor(Math.random() * catImages.length)];
   
   const styles = `
