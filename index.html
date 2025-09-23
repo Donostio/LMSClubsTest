@@ -157,15 +157,22 @@
   </div>
 
   <div class="page" role="main">
-<header class="top" style="display: flex; justify-content: space-between; align-items: center; padding: 24px 28px;">
-  <div>
+<header class="top">
+  <div class="logo">
     <a href="https://www.ladymargaretpta.com/">
-      <img src="images/PTAlogoH.png" alt="LMS PTA Logo" style="height: 75px; max-width: 100%; object-fit: contain;">
+      <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 style="flex-grow: 1; text-align: center;">Lady HMS Margaret School, Clubs 2025-26</h1>
-  <div style="display: flex; align-items: center; gap: 16px;">
-    <a href="lms_clubs_guide.html" style="font-weight: bold; color: var(--red); text-decoration: none;">Guide to using this site</a>
+
+  <h1 class="title">Lady TEST Margaret School, Clubs 2025-26</h1>
+
+  <div class="actions">
+    <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
+    <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="icon">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
+      </svg>
+    </button>
   </div>
 </header>
 
@@ -1135,13 +1142,6 @@ function initFilterLogic() {
 // TEST: Trigger ascending cat on page load (disable before deploy)
 // window.addEventListener('load', () => showAscendingCat());
 </script>
-<div style="position: fixed; bottom: 24px; right: 24px; z-index: 50;">
-  <button id="filter-btn" class="w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center" aria-controls="filter-panel" aria-expanded="false">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="w-6 h-6">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
-    </svg>
-  </button>
-</div>
 </body>
 </html>
 
