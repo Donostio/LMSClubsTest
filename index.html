@@ -175,7 +175,7 @@
     </a>
   </div>
 
-  <h1 class="title">Lady cold Margaret School, Clubs 2025-26</h1>
+  <h1 class="title">Lady Margaret School, Clubs 2025-26</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -241,6 +241,17 @@
     border: none;
   }
 
+  #filter-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #filter-btn .icon {
+    width: 24px;
+    height: 24px;
+  }
+
   header button:hover {
     background: #7e22ce;
   }
@@ -248,19 +259,27 @@
   /* Floating filter button */
   #filter-btn {
     position: fixed !important;
-    top: 33vh;
-    right: 20px;
+    bottom: 20vh;
+    right: calc(50% - 565px);
     z-index: 100;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     width: 56px;
     height: 56px;
-    background: var(--red) !important;
+    background: linear-gradient(90deg, #ef4444, #000) !important;
     border: none;
+    border-radius: 50%;
   }
 
   #filter-btn:hover {
-    background: #dc2626 !important;
+    background: linear-gradient(90deg, #dc2626, #1a1a1a) !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Mobile positioning for filter button */
+  @media (max-width: 1200px) {
+    #filter-btn {
+      right: 20px;
+    }
   }
 
   header button .icon {
@@ -1201,6 +1220,10 @@ function initFilterLogic() {
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
