@@ -127,7 +127,7 @@
     .print-button { width:180px; }
     /* Filter summary repositioning */
     .search-filter-row { display:flex; align-items:flex-end; gap:12px; }
-    #active-filters-summary { margin-left:12px; }
+    #active-filters-summary { margin-left:12px; transform:translateY(-100%); }
   </style>
 </head>
 <body>
@@ -144,11 +144,10 @@
   <img src="images/PTAlogoH.png" alt="LMS PTA Logo" style="height: 75px; max-width: 100%; object-fit: contain;">
 </a>      </div>
       <h1>Lady Margaret School, Clubs 2025-26</h1>
-<button id="filter-btn" class="flex items-center space-x-2 text-white bg-purple-600 hover:bg-purple-700 font-medium rounded-lg text-sm px-4 py-2" aria-controls="filter-panel" aria-expanded="false">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.462.834 7.766 2.459a.75.75 0 01.378 1.054l-2.484 4.545a9 9 0 01-14.896 0L3.856 6.513a.75.75 0 01.378-1.054A11.233 11.233 0 0112 3zm0 3.75h.008v.008H12V6.75zm0 3.75a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 5.25a2.25 2.25 0 110 4.5 2.25 2.25 0 010-4.5z" />
+<button id="filter-btn" class="w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center" aria-controls="filter-panel" aria-expanded="false">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
     </svg>
-    <span>Filters</span>
 </button> 
     </header>
 
@@ -325,12 +324,89 @@ const catImageElement = document.getElementById('cat-image');
 const catWrapper = document.getElementById('cat-wrapper');
 let interactionCount = 0;
 
-// Updated cat frequency settings (1/10th the rate, minimum 30s delay)
+// Updated cat frequency settings with 30s minimum delay
 const catIntervalMin = 10;
 const catIntervalMax = 50;
 let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
-// Function to show cat with random slide animation
+// Separate counter for ascending cat (10-13 interactions)
+let ascendingCatCount = 0;
+const ascendingCatMin = 10;
+const ascendingCatMax = 13;
+let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
+
+// 30-second minimum delay tracking
+let lastCatTime = 0;
+const CAT_MIN_DELAY = 30000; // 30 seconds in milliseconds
+
+// Function to show ascending cat specifically
+const showAscendingCat = () => {
+    const catIndex = Math.floor(Math.random() * catImages.length);
+    const selectedCatImage = catImages[catIndex];
+
+    // Clear previous animation classes and styles
+    catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
+    catContainer.style.transform = '';
+    catImageElement.style.transform = '';
+
+    catImageElement.src = selectedCatImage;
+    // Complete reset - remove all classes and inline styles
+    catContainer.className = 'cat-container';
+    catContainer.style.cssText = '';
+    catImageElement.style.cssText = '';
+    
+    // Set up initial position using inline styles (bypassing CSS classes)
+    catContainer.style.position = 'fixed';
+    catContainer.style.bottom = '0';
+    catContainer.style.left = '50%';
+    catContainer.style.transform = 'translate(-50%, 100%)'; // Start completely off-screen
+    catContainer.style.zIndex = '100';
+    catContainer.style.pointerEvents = 'none';
+    catContainer.style.transition = 'none'; // No transition initially
+    catContainer.style.overflow = 'hidden'; // Prevent any spillover
+    
+    // Set up the scaled cat image properly
+    catImageElement.style.width = '450px'; // 150px * 3 = 450px for scale(3) effect
+    catImageElement.style.height = 'auto';
+    catImageElement.style.borderRadius = '0.75rem';
+    catImageElement.style.display = 'block';
+    
+    // Force reflow
+    catContainer.offsetHeight;
+
+    // Start the FAST slide up animation
+    setTimeout(() => {
+        catContainer.style.transition = 'transform 0.4s ease-out'; // Fast slide up (0.4s - was 0.8s)
+        catContainer.style.transform = 'translate(-50%, 35%)'; // Stop at about 2/3 visible
+
+        // After slide up + pause, slide back down SLOWLY
+        setTimeout(() => {
+            catContainer.style.transition = 'transform 3s ease-in'; // Slow slide down (3s)
+            catContainer.style.transform = 'translate(-50%, 100%)'; // Slide back down off-screen
+
+            // Clean up after slide down animation completes
+            setTimeout(() => {
+                // Complete invisibility - multiple approaches to ensure it's gone
+                catContainer.style.display = 'none';
+                catContainer.style.visibility = 'hidden';
+                catContainer.style.opacity = '0';
+                catContainer.style.zIndex = '-999';
+                catContainer.style.transform = 'translate(-50%, 200vh)'; // Move way off screen
+                
+                // Final complete cleanup after ensuring invisibility
+                setTimeout(() => {
+                    catContainer.className = 'cat-container';
+                    catContainer.style.cssText = '';
+                    catImageElement.style.cssText = '';
+                    catImageElement.src = ''; // Clear the image source
+                }, 200);
+            }, 3000); // Wait for 3s slow slide down to complete
+        }, 900); // 0.4s slide up + 0.5s pause
+
+    }, 100);
+};
+
+// Function to show cat with random slide animation (excluding ascending cat)
 const showCat = () => {
     const catIndex = Math.floor(Math.random() * catImages.length);
     const selectedCatImage = catImages[catIndex];
@@ -340,100 +416,52 @@ const showCat = () => {
     catContainer.style.transform = '';
     catImageElement.style.transform = '';
 
-    const animations = ['from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat'];
+    const animations = ['from-top', 'from-right', 'from-bottom', 'from-left'];
     const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
     
-    // Handle the new "ascending cat" animation using inline styles
-    if (chosenAnimation === 'ascending-cat') {
-        catImageElement.src = selectedCatImage;
-        // Complete reset - remove all classes and inline styles
-        catContainer.className = 'cat-container';
-        catContainer.style.cssText = '';
-        catImageElement.style.cssText = '';
-        
-        // Set up initial position using inline styles (bypassing CSS classes)
-        catContainer.style.position = 'fixed';
-        catContainer.style.bottom = '0';
-        catContainer.style.left = '50%';
-        catContainer.style.transform = 'translate(-50%, 100%)'; // Start completely off-screen
-        catContainer.style.zIndex = '100';
-        catContainer.style.pointerEvents = 'none';
-        catContainer.style.transition = 'none'; // No transition initially
-        catContainer.style.overflow = 'hidden'; // Prevent any spillover
-        
-        // Set up the scaled cat image properly
-        catImageElement.style.width = '450px'; // 150px * 3 = 450px for scale(3) effect
-        catImageElement.style.height = 'auto';
-        catImageElement.style.borderRadius = '0.75rem';
-        catImageElement.style.display = 'block';
-        
-        // Force reflow
-        catContainer.offsetHeight;
+    // Standard slide animations - set image source here to ensure consistency
+    catImageElement.src = selectedCatImage;
+    catContainer.classList.add(chosenAnimation);
+    setTimeout(() => {
+        catContainer.classList.add('is-active');
+    }, 50);
 
-        // Start the FAST slide up animation
-        setTimeout(() => {
-            catContainer.style.transition = 'transform 0.4s ease-out'; // Fast slide up (0.4s - was 0.8s)
-            catContainer.style.transform = 'translate(-50%, 35%)'; // Stop at about 2/3 visible
-
-            // After slide up + pause, slide back down SLOWLY
-            setTimeout(() => {
-                catContainer.style.transition = 'transform 3s ease-in'; // Slow slide down (3s)
-                catContainer.style.transform = 'translate(-50%, 100%)'; // Slide back down off-screen
-
-                // Clean up after slide down animation completes
-                setTimeout(() => {
-                    // Complete invisibility - multiple approaches to ensure it's gone
-                    catContainer.style.display = 'none';
-                    catContainer.style.visibility = 'hidden';
-                    catContainer.style.opacity = '0';
-                    catContainer.style.zIndex = '-999';
-                    catContainer.style.transform = 'translate(-50%, 200vh)'; // Move way off screen
-                    
-                    // Final complete cleanup after ensuring invisibility
-                    setTimeout(() => {
-                        catContainer.className = 'cat-container';
-                        catContainer.style.cssText = '';
-                        catImageElement.style.cssText = '';
-                        catImageElement.src = ''; // Clear the image source
-                    }, 200);
-                }, 3000); // Wait for 3s slow slide down to complete
-            }, 900); // 0.4s slide up + 0.5s pause
-
-        }, 100);
-
-    } else {
-        // Standard slide animations - set image source here to ensure consistency
-        catImageElement.src = selectedCatImage;
-        catContainer.classList.add(chosenAnimation);
-        setTimeout(() => {
-            catContainer.classList.add('is-active');
-        }, 50);
-
-        // Slide out after 2 seconds
-        setTimeout(() => {
-            catContainer.classList.remove('is-active');
-        }, 2000);
-    }
+    // Slide out after 2 seconds
+    setTimeout(() => {
+        catContainer.classList.remove('is-active');
+    }, 2000);
 };
 
 const handleInteraction = () => {
+    const currentTime = Date.now();
+    
+    // Check for ascending cat (separate counter)
+    ascendingCatCount++;
+    if (ascendingCatCount >= nextAscendingCatInteraction && (currentTime - lastCatTime) >= CAT_MIN_DELAY) {
+        showAscendingCat();
+        ascendingCatCount = 0;
+        nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
+        lastCatTime = currentTime;
+        return; // Don't check for regular cats if ascending cat was shown
+    }
+    
+    // Check for regular cats
     interactionCount++;
-    if (interactionCount >= nextCatInteraction) {
+    if (interactionCount >= nextCatInteraction && (currentTime - lastCatTime) >= CAT_MIN_DELAY) {
         showCat();
         // Reset the interaction counter and set the next random interval
         interactionCount = 0;
         nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
+        lastCatTime = currentTime;
     }
 };
 
-// Add global interaction event handlers for cat animations
+// Add global interaction event handlers for cat animations (removed mousemove to prevent rapid triggering)
 document.addEventListener('click', handleInteraction);
-document.addEventListener('mousemove', handleInteraction);
 document.addEventListener('keydown', handleInteraction);
 document.addEventListener('scroll', handleInteraction);
 
-// Periodically trigger interaction to ensure cats appear even without user activity
-setInterval(handleInteraction, 3000);
+// Removed automatic timer to ensure cats only appear on real user interactions
 
 /* -----------------------------
    CSV fetch & parsing
@@ -543,14 +571,13 @@ function renderClubs(){
     card.className = 'club-card';
     if(selectedClubs.has(club.urn)) card.classList.add('selected');
 
-let yearsText = '';
+    let yearsText = '';
     if(club.year.includes('All Years')) yearsText = 'All Years';
-    else yearsText = 'Years: ' + club.year.join(', ');
-
-    if(club.year.includes('All Years')) {
-      yearsText = esc(yearsText);
+    else yearsText = club.year.join(', ');
+    if(f.year && !club.year.includes('All Years')) {
+      yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
     } else {
-      yearsText = `<span class="muted">${esc(yearsText)}</span>`;
+      yearsText = esc(yearsText);
     }
 
     card.innerHTML = `
@@ -820,7 +847,7 @@ function updateActiveFiltersSummary(){
   
   const summaryEl = document.getElementById('active-filters-summary');
   if (parts.length > 0) {
-    summaryEl.innerHTML = parts.join(' | ') + ' <span style="color:var(--muted);">Filters</span>';
+    summaryEl.textContent = `Filtered: ${parts.join(' | ')}`;
   } else {
     summaryEl.textContent = 'All clubs shown';
   }
@@ -967,9 +994,16 @@ function initFilterLogic() {
   wireGroup('.when-filter');
   wireGroup('.club-filter');
 }
+
+// TEST: Trigger ascending cat on page load (disable before deploy)
+// window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
