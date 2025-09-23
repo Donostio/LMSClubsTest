@@ -237,15 +237,18 @@
   /* Floating filter button */
   #filter-btn {
     position: fixed !important;
-    bottom: 20px;
+    top: 33vh;
     right: 20px;
     z-index: 100;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     width: 56px;
     height: 56px;
+    background: var(--red) !important;
+    border: none;
   }
 
   #filter-btn:hover {
+    background: #dc2626 !important;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   }
 
@@ -257,29 +260,37 @@
   /* Mobile adjustments */
   @media (max-width: 720px) {
     header.top {
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
       padding: 14px 16px;
+      flex-wrap: wrap;
+    }
+
+    header .logo {
+      order: 1;
+      flex-shrink: 0;
     }
 
     header .logo img {
       height: 50px;
     }
 
-    header .title {
-      font-size: 18px;
+    header .actions {
       order: 2;
-      margin-top: 30px;
+      gap: 10px;
+      margin-top: 0;
+      margin-bottom: 0;
     }
 
-    header .actions {
-      order: 1;
-      gap: 10px;
+    header .title {
+      order: 3;
       width: 100%;
-      justify-content: flex-end;
-      margin-top: -10px;
-      margin-bottom: 10px;
+      text-align: center;
+      font-size: 18px;
+      margin-top: 10px;
+      margin-bottom: 0;
     }
 
     header .guide-link {
@@ -1166,6 +1177,10 @@ function initFilterLogic() {
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
