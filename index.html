@@ -157,24 +157,124 @@
   </div>
 
   <div class="page" role="main">
-<header class="top" style="display: flex; justify-content: space-between; align-items: center; padding: 24px 28px;">
-  <div>
+<header class="top">
+  <div class="logo">
     <a href="https://www.ladymargaretpta.com/">
-      <img src="images/PTAlogoH.png" alt="LMS PTA Logo" style="height: 75px; max-width: 100%; object-fit: contain;">
+      <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
 
-  <h1 style="flex-grow: 1; text-align: center;">Lady Margaret School, Clubs 2025-26</h1>
+  <h1 class="title">Lady Margaret School, Clubs 2025-26</h1>
 
-  <div style="display: flex; align-items: center; gap: 16px;">
-    <a href="lms_clubs_guide.html" style="font-weight: bold; color: var(--red); text-decoration: none;">Guide to using this site</a>
-    <button id="filter-btn" class="w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center" aria-controls="filter-panel" aria-expanded="false" style="flex-shrink: 0;">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="w-6 h-6">
+  <div class="actions">
+    <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
+    <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="icon">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
       </svg>
     </button>
   </div>
 </header>
+
+<style>
+  header.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  header .logo img {
+    height: 65px;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  header .title {
+    flex: 1;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+  }
+
+  header .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  header .guide-link {
+    font-weight: bold;
+    color: var(--red);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  header button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #9333ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+
+  header button:hover {
+    background: #7e22ce;
+  }
+
+  header button .icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 720px) {
+    header.top {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 14px 16px;
+    }
+
+    header .logo img {
+      height: 50px;
+    }
+
+    header .title {
+      font-size: 18px;
+      order: 2;
+    }
+
+    header .actions {
+      order: 3;
+      gap: 10px;
+    }
+
+    header .guide-link {
+      font-size: 14px;
+    }
+
+    header button {
+      width: 36px;
+      height: 36px;
+    }
+
+    header button .icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+</style>
+
 
     <section style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
       <div style="min-width:260px;">
