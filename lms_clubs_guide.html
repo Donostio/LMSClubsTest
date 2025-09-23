@@ -112,11 +112,60 @@
       color: var(--red);
       font-weight: 600;
     }
+
+    .back-button {
+      position: absolute;
+      top: 28px;
+      right: 28px;
+      background-color: var(--red);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .back-button:hover {
+      background-color: #dc2626;
+    }
+
+    .back-button-center {
+      background-color: var(--red);
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      transition: background-color 0.2s;
+      margin-top: 20px;
+    }
+
+    .back-button-center:hover {
+      background-color: #dc2626;
+    }
+
+    .page {
+      position: relative;
+      max-width: 900px;
+      margin: 28px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.20);
+    }
   </style>
 </head>
 <body>
 
   <div class="page" role="main">
+    <a href="LMSClubsTest/index.html" class="back-button">Back to the clubs</a>
     <header>
       <div class="header-logo" style="text-align:center; margin-bottom:20px;">
         <a href="https://www.ladymargaretpta.com/">
@@ -127,14 +176,14 @@
     
     <span style="font-weight: bold;"><h1>Guide to the Lady Margaret School Clubs Tool</h1></span>
     <p class="intro-paragraph">👋 We're lucky to have so many free clubs available at LMS! It can be tricky to navigate them all, so the PTA and class reps have put together this quick guide to help you use the LMS Clubs tool. It's designed to make finding clubs and printing a timetable of your available and chosen ones super easy!</p>
-<br>
+    
     <hr>
-<br>
+
      <span style="font-weight: bold;"><h2>Step 1: Filter by Year Group</h2></span>
     <p>The first and most important step is to <span style="font-weight: bold;">select your year group</span>. You'll see a dropdown menu right at the top of the page. Once you choose your year, the page will automatically refresh to show only the clubs available. This is key, as it enables the rest of the site's features, including the ability to select and print clubs.</p>
 <br>
-      <hr>
-<br>
+    <hr>
+
      <span style="font-weight: bold;"><h2>Step 2: Explore and Filter Clubs</h2></span>
     <p>Now that you've narrowed it down, you can start exploring!</p>
     <ul>
@@ -148,7 +197,7 @@
         </ul>
       </li>
     </ul>
-<br>
+
     <hr>
 <br>
      <span style="font-weight: bold;"><h2>Step 3: Select & Print Your Timetable 🖨️</h2></span>
@@ -162,9 +211,9 @@
         </ul>
       </li>
     </ul>
-<br>
+
     <hr>
-<br>
+
     <div class="note">
       <h2>A Few Extra Tips</h2>
       <ul>
@@ -174,7 +223,13 @@
       </ul>
     </div>
 
+    <hr>
+
     <p style="text-align: center;">We hope this makes the club selection process even smoother!</p>
+
+    <div style="text-align: center;">
+      <a href="LMSClubsTest/index.html" class="back-button-center">Back to the clubs</a>
+    </div>
 
     <div class="footer-text">
       <p>This site is maintained by the PTA and class reps</p>
