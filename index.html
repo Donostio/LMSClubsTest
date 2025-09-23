@@ -175,7 +175,7 @@
     </a>
   </div>
 
-  <h1 class="title">Lady hhh Margaret School, Clubs 2025-26</h1>
+  <h1 class="title">Lady Margaret School, Clubs 2025-26</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -1009,22 +1009,6 @@ function printViaIframe(html){
 /* -----------------------------
    Filter panel wiring & helpers
    ----------------------------- */
-filterBtn.addEventListener('click', ()=>{ 
-  // Toggle the filter panel
-  if(filterPanel.classList.contains('open')) {
-    // Close panel
-    filterPanel.classList.remove('open'); 
-    filterOverlay.style.display = 'none'; 
-    filterBtn.setAttribute('aria-expanded','false');
-  } else {
-    // Open panel
-    filterPanel.classList.add('open'); 
-    filterOverlay.style.display = 'block'; 
-    filterBtn.setAttribute('aria-expanded','true');
-  }
-});
-closeFilter.addEventListener('click', ()=>{ filterPanel.classList.remove('open'); filterOverlay.style.display = 'none'; filterBtn.setAttribute('aria-expanded','false'); });
-filterOverlay.addEventListener('click', ()=>{ filterPanel.classList.remove('open'); filterOverlay.style.display = 'none'; filterBtn.setAttribute('aria-expanded','false'); });
 
 document.getElementById('clear-day').addEventListener('click', ()=>{ document.querySelectorAll('.day-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
 document.getElementById('clear-when').addEventListener('click', ()=>{ document.querySelectorAll('.when-filter').forEach(c=>c.checked = c.value === 'All'); applyFiltersAndRender(); });
@@ -1259,6 +1243,30 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
