@@ -608,7 +608,7 @@ function updatePrintControls(){
     const clubsForYear = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(y));
     const selected = clubsForYear.filter(c => selectedClubs.has(c.urn));
     const others = clubsForYear.filter(c => !selectedClubs.has(c.urn));
-    const title = `Year ${y} Clubs Timetable`;
+    const title = `My Year ${y} Clubs Timetable`;
     const html = createPrintHTML(title, selected, others, { showOtherTitle:false });
     printViaIframe(html);
   });
