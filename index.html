@@ -14,11 +14,6 @@
       background:#000;
       background-image: repeating-linear-gradient(to right, var(--red), var(--red) 2px, #000 2px, #000 24px);
     }
-    <div id="cat-container" class="cat-container">
-    <div id="cat-wrapper" class="cat-wrapper">
-        <img id="cat-image" src="" alt="" class="cat-image">
-    </div>
-</div>
     .page {max-width:1180px;margin:28px auto;background:#fff;border-radius:12px;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,0.20);}
     header.top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
     header.top h1 { margin:0; font-size:22px; font-weight:700; color:#111; }
@@ -59,89 +54,58 @@
       pointer-events: none;
       will-change: transform;
     }
-    /* New cat animation CSS */
-.cat-container {
-  position: fixed;
-  z-index: 100;
-  pointer-events: none;
-  will-change: transform;
-}
-/* -------------------------
-   Standard directional cats
-   ------------------------- */
-
-/* From top */
-.cat-container.from-top {
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -100vh);
-  transition: transform 0.8s ease-out;
-}
-.cat-container.from-top.is-active {
-  transform: translate(-50%, 0);
-}
-
-/* From right */
-.cat-container.from-right {
-  top: 50%;
-  right: 0;
-  transform: translate(100vw, -50%);
-  transition: transform 0.8s ease-out;
-}
-.cat-container.from-right.is-active {
-  transform: translate(0, -50%);
-}
-
-/* From bottom */
-.cat-container.from-bottom {
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 100vh);
-  transition: transform 0.8s ease-out;
-}
-.cat-container.from-bottom.is-active {
-  transform: translate(-50%, 0);
-}
-
-/* From left */
-.cat-container.from-left {
-  top: 50%;
-  left: 0;
-  transform: translate(-100vw, -50%);
-  transition: transform 0.8s ease-out;
-}
-.cat-container.from-left.is-active {
-  transform: translate(0, -50%);
-}
-
-/* -------------------------
-   Ascending cat (large, vertical only)
-   ------------------------- */
-.cat-container.ascending-cat {
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 100%);
-  transition: none; /* No transition initially */
-}
-.cat-container.ascending-cat.is-active {
-  transform: translate(-50%, -66.6666%);
-  transition: transform 3s ease-out; /* Transition only when sliding up */
-}
-.cat-container.ascending-cat.slide-down {
-  transform: translate(-50%, 100%);
-  transition: transform 0.5s ease-in; /* Fast slide down */
-}
-
-/* Cat images */
-.cat-container img {
-  width: 150px;
-  height: auto;
-  border-radius: 0.75rem;
-}
-.cat-container.ascending-cat img {
-  transform: scale(3);
-}
-  
+    /* Standard directional cats */
+    .cat-container.from-top {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -100vh);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-top.is-active {
+      transform: translate(-50%, 0);
+    }
+    .cat-container.from-right {
+      top: 50%;
+      right: 0;
+      transform: translate(100vw, -50%);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-right.is-active {
+      transform: translate(0, -50%);
+    }
+    .cat-container.from-bottom {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 100vh);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-bottom.is-active {
+      transform: translate(-50%, 0);
+    }
+    .cat-container.from-left {
+      top: 50%;
+      left: 0;
+      transform: translate(-100vw, -50%);
+      transition: transform 0.8s ease-out;
+    }
+    .cat-container.from-left.is-active {
+      transform: translate(0, -50%);
+    }
+    /* Ascending cat (large, vertical only) */
+    .cat-container.ascending-cat {
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 100%);
+      transition: none;
+    }
+    .cat-container.ascending-cat.is-active {
+      transform: translate(-50%, -66.6666%);
+      transition: transform 3s ease-out;
+    }
+    .cat-container.ascending-cat.slide-down {
+      transform: translate(-50%, 100%);
+      transition: transform 0.5s ease-in;
+    }
     /* Cat images */
     .cat-container img {
       width: 150px;
@@ -351,7 +315,6 @@ function checkForDuplicateClub(newClub) {
 /* -----------------------------
    Cat animations with proper logic from old site
    ----------------------------- */
-// Cat Cameo variables and data
 const catImages = [
     'images/11C.png',
     'images/22C.png',
@@ -367,9 +330,8 @@ const catIntervalMin = 10;
 const catIntervalMax = 50;
 let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
-// NEW: Function to show cat with random slide animation
+// Function to show cat with random slide animation
 const showCat = () => {
-    console.log("showCat() is being called. A cat should be appearing!");
     const catIndex = Math.floor(Math.random() * catImages.length);
     const selectedCatImage = catImages[catIndex];
 
@@ -451,17 +413,6 @@ const showCat = () => {
         setTimeout(() => {
             catContainer.classList.remove('is-active');
         }, 2000);
-    }
-};
-
-const handleInteraction = () => {
-    interactionCount++;
-    console.log(`Interaction detected. Current count: ${interactionCount}. Next cat at: ${nextCatInteraction}`);
-    if (interactionCount >= nextCatInteraction) {
-        showCat();
-        // Reset the interaction counter and set the next random interval
-        interactionCount = 0;
-        nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
     }
 };
 
@@ -719,7 +670,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   const { grid, days, whens } = buildGridForPrint(combined);
   
   // Select random cat image for print
-  const catImages = ['images/111C.png', 'images/222C.png', 'images/333.png'];
+  const catImages = ['images/11C.png', 'images/22C.png', 'images/33.png'];
   const randomCat = catImages[Math.floor(Math.random() * catImages.length)];
   
   const styles = `
