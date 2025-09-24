@@ -175,7 +175,7 @@
     </a>
   </div>
 
-  <h1 class="title">5 Gaz TEST</h1>
+  <h1 class="title">4 Gaz TEST</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -1047,24 +1047,13 @@ function initFilterLogic(){
    Apply filters, summary, and events
    ----------------------------- */
 
-function populateClubList(selectedYear){
+function populateClubList(){
   const container = document.getElementById('club-list');
   if(!container) return;
-  
-  // Filter clubs based on the selected year
-  let filteredClubs = clubsData;
-  if (selectedYear) {
-    filteredClubs = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(selectedYear));
-  }
-  
-  const clubs = [...new Set(filteredClubs.map(c=>c.name).filter(Boolean))].sort();
-  
+  const clubs = [...new Set(clubsData.map(c=>c.name).filter(Boolean))].sort();
   container.innerHTML = clubs.map(n=>
     `<label><input type="checkbox" class="club-filter" value="${esc(n)}"> ${esc(n)}</label><br>`
   ).join('');
-  
-  // Also clear any previous selections from the filter panel
-  document.querySelectorAll('.club-filter').forEach(c => c.checked = false);
 }
 
 function applyFiltersAndRender(){
@@ -1094,10 +1083,8 @@ function updateActiveFiltersSummary(){
 
 function updateYearSelectColor(){ if(!yearFilterEl.value) yearFilterEl.style.color = 'var(--red)'; else yearFilterEl.style.color = '#111'; }
 yearFilterEl.addEventListener('change', ()=>{
-  const selectedYear = yearFilterEl.value; // Get the currently selected year
   updateYearSelectColor();
-  populateClubList(selectedYear); // Call the new function with the selected year
-  document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(selectedYear || selectedClubs.has(cb.value)); if(cb.parentElement) { if(selectedYear) cb.parentElement.classList.add('show'); else cb.parentElement.classList.remove('show'); } });
+  document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); if(cb.parentElement) { if(yearFilterEl.value) cb.parentElement.classList.add('show'); else cb.parentElement.classList.remove('show'); } });
   applyFiltersAndRender();
 });
 updateYearSelectColor();
@@ -1250,9 +1237,7 @@ function initFilterLogic() {
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, initializing LMS Clubs...');
-  fetchClubsCSV().then(() => {
-  populateClubList(yearFilterEl.value); // Initial population on load
-  initFilterLogic();
+  fetchClubsCSV();
 });
 
 // TEST: Trigger ascending cat on page load (disable before deploy)
