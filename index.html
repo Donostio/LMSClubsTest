@@ -908,7 +908,8 @@ function buildGridForPrint(clubs){
   clubs.forEach(c=>{
     const when = c.when || 'After School';
     const day = c.day || '';
-    if(grid[when] && grid[when][day]) grid[w][d].push(c);
+    // FIX: correctly reference when/day instead of undefined w/d
+    if(grid[when] && grid[when][day]) grid[when][day].push(c);
   });
   return { grid, days, whens };
 }
