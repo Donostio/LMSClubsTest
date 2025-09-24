@@ -6,7 +6,6 @@
   <title>LMS Clubs</title>
   <link rel="icon" type="image/png" href="lms_logo.png">
   
-  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNV90DS36X"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -175,14 +174,13 @@
     </a>
   </div>
 
-  <h1 class="title">4 Gaz TEST</h1>
+  <h1 class="title">1 GAZ</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
   </div>
 </header>
 
-<!-- Floating filter button outside of header -->
 <button id="filter-btn" aria-controls="filter-panel" aria-expanded="false">
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="white" class="icon">
     <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M7 12h10M11 18h2" />
@@ -387,7 +385,6 @@
       <button id="close-filter" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">✕</button>
     </div>
 
-    <!-- Day -->
     <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <strong>Day</strong>
@@ -403,7 +400,6 @@
       </div>
     </div>
 
-    <!-- When -->
     <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <strong>When</strong>
@@ -417,7 +413,6 @@
       </div>
     </div>
 
-    <!-- Department dropdown -->
     <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <strong>Department</strong>
@@ -428,18 +423,15 @@
       </select>
     </div>
 
-    <!-- Club Name scrollable list -->
     <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
         <strong>Club Name</strong>
         <button id="clear-club-name" class="clear-link">Clear</button>
       </div>
       <div id="club-list" style="max-height:200px;overflow:auto;border:1px solid #e6e6e6;border-radius:6px;padding:6px;">
-        <!-- Clubs populated dynamically -->
-      </div>
+        </div>
     </div>
 
-    <!-- Clear All -->
     <div style="margin-top:auto;">
       <button id="clear-all" style="width:100%;padding:10px;border-radius:10px;border:2px solid #ef4444;background:#fff;cursor:pointer;">
         Clear All Filters
@@ -518,14 +510,14 @@ const catWrapper = document.getElementById('cat-wrapper');
 let interactionCount = 0;
 
 // Updated cat frequency settings with 30s minimum delay
-const catIntervalMin = 10;
+const catIntervalMin = 30;
 const catIntervalMax = 50;
 let nextCatInteraction = Math.floor(Math.random() * (catIntervalMax - catIntervalMin + 1)) + catIntervalMin;
 
 // Separate counter for ascending cat (100-200 interactions - much rarer)
 let ascendingCatCount = 0;
-const ascendingCatMin = 100;
-const ascendingCatMax = 200;
+const ascendingCatMin = 80;
+const ascendingCatMax = 120;
 let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
 
 // 30-second minimum delay tracking
@@ -537,78 +529,76 @@ let animationInProgress = false;
 
 // Function to show ascending cat specifically
 const showAscendingCat = () => {
-  animationInProgress = true;
+    // Set animation in progress flag
+    animationInProgress = true;
+    
+    const catIndex = Math.floor(Math.random() * catImages.length);
+    const selectedCatImage = catImages[catIndex];
 
-  const catIndex = Math.floor(Math.random() * catImages.length);
-  const selectedCatImage = catImages[catIndex];
+    // Clear previous animation classes and styles
+    catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
+    catContainer.style.transform = '';
+    catImageElement.style.transform = '';
 
-  // Reset classes and styles
-  catContainer.className = 'cat-container';
-  catContainer.style.cssText = '';
-  catImageElement.style.cssText = '';
-  catImageElement.src = selectedCatImage;
-
-  // Position container off-screen initially
-  catContainer.style.position = 'fixed';
-  catContainer.style.bottom = '0';
-  catContainer.style.left = '50%';
-  catContainer.style.transform = 'translate(-50%, 100%)';
-  catContainer.style.zIndex = '100';
-  catContainer.style.pointerEvents = 'none';
-  catContainer.style.transition = 'none';
-  catContainer.style.overflow = 'hidden';
-
-  // Helper to set width = 90% of .page
-  const updateCatWidth = () => {
-    const pageEl = document.querySelector('.page');
-    const pageWidth = pageEl ? pageEl.offsetWidth : window.innerWidth;
-    catImageElement.style.width = (pageWidth * 3) + 'px';
+    catImageElement.src = selectedCatImage;
+    // Complete reset - remove all classes and inline styles
+    catContainer.className = 'cat-container';
+    catContainer.style.cssText = '';
+    catImageElement.style.cssText = '';
+    
+    // Set up initial position using inline styles (bypassing CSS classes)
+    catContainer.style.position = 'fixed';
+    catContainer.style.bottom = '0';
+    catContainer.style.left = '50%';
+    catContainer.style.transform = 'translate(-50%, 100%)'; // Start completely off-screen
+    catContainer.style.zIndex = '100';
+    catContainer.style.pointerEvents = 'none';
+    catContainer.style.transition = 'none'; // No transition initially
+    catContainer.style.overflow = 'hidden'; // Prevent any spillover
+    
+    // Set up the scaled cat image properly
+    catImageElement.style.width = '1125px'; // 150px * 7.5 = 1125px for scale(7.5) effect
     catImageElement.style.height = 'auto';
     catImageElement.style.borderRadius = '0.75rem';
     catImageElement.style.display = 'block';
-  };
+    
+    // Force reflow
+    catContainer.offsetHeight;
 
-  updateCatWidth(); // run once immediately
-  window.addEventListener('resize', updateCatWidth);
-
-  // Force reflow
-  catContainer.offsetHeight;
-
-  // Slide up
-  setTimeout(() => {
-    catContainer.style.transition = 'transform 0.4s ease-out';
-    catContainer.style.transform = 'translate(-50%, 35%)';
-
-    // Pause, then slide back down
+    // Start the FAST slide up animation
     setTimeout(() => {
-      catContainer.style.transition = 'transform 3s ease-in';
-      catContainer.style.transform = 'translate(-50%, 100%)';
+        catContainer.style.transition = 'transform 0.4s ease-out'; // Fast slide up (0.4s - was 0.8s)
+        catContainer.style.transform = 'translate(-50%, 35%)'; // Stop at about 2/3 visible
 
-      // Clean up after animation
-      setTimeout(() => {
-        catContainer.style.display = 'none';
-        catContainer.style.visibility = 'hidden';
-        catContainer.style.opacity = '0';
-        catContainer.style.zIndex = '-999';
-        catContainer.style.transform = 'translate(-50%, 200vh)';
-
-        // Final cleanup
+        // After slide up + pause, slide back down SLOWLY
         setTimeout(() => {
-          catContainer.className = 'cat-container';
-          catContainer.style.cssText = '';
-          catImageElement.style.cssText = '';
-          catImageElement.src = '';
+            catContainer.style.transition = 'transform 3s ease-in'; // Slow slide down (3s)
+            catContainer.style.transform = 'translate(-50%, 100%)'; // Slide back down off-screen
 
-          // Remove resize listener so it doesn't linger
-          window.removeEventListener('resize', updateCatWidth);
+            // Clean up after slide down animation completes
+            setTimeout(() => {
+                // Complete invisibility - multiple approaches to ensure it's gone
+                catContainer.style.display = 'none';
+                catContainer.style.visibility = 'hidden';
+                catContainer.style.opacity = '0';
+                catContainer.style.zIndex = '-999';
+                catContainer.style.transform = 'translate(-50%, 200vh)'; // Move way off screen
+                
+                // Final complete cleanup after ensuring invisibility
+                setTimeout(() => {
+                    catContainer.className = 'cat-container';
+                    catContainer.style.cssText = '';
+                    catImageElement.style.cssText = '';
+                    catImageElement.src = ''; // Clear the image source
+                    
+                    // Clear animation in progress flag
+                    animationInProgress = false;
+                }, 200);
+            }, 3000); // Wait for 3s slow slide down to complete
+        }, 900); // 0.4s slide up + 0.5s pause
 
-          animationInProgress = false;
-        }, 200);
-      }, 3000); // wait for slide down
-    }, 900); // pause before slide down
-  }, 100);
+    }, 100);
 };
-
 
 // Function to show cat with random slide animation (excluding ascending cat)
 const showCat = () => {
@@ -918,7 +908,7 @@ function buildGridForPrint(clubs){
   clubs.forEach(c=>{
     const when = c.when || 'After School';
     const day = c.day || '';
-    if(grid[when] && grid[when][day]) grid[when][day].push(c);
+    if(grid[when] && grid[when][day]) grid[w][d].push(c);
   });
   return { grid, days, whens };
 }
@@ -1047,13 +1037,24 @@ function initFilterLogic(){
    Apply filters, summary, and events
    ----------------------------- */
 
-function populateClubList(){
+function populateClubList(selectedYear){
   const container = document.getElementById('club-list');
   if(!container) return;
-  const clubs = [...new Set(clubsData.map(c=>c.name).filter(Boolean))].sort();
+
+  // Filter clubs based on the selected year
+  let filteredClubs = clubsData;
+  if (selectedYear) {
+    filteredClubs = clubsData.filter(c => c.year.includes('All Years') || c.year.includes(selectedYear));
+  }
+  
+  const clubs = [...new Set(filteredClubs.map(c=>c.name).filter(Boolean))].sort();
+  
   container.innerHTML = clubs.map(n=>
     `<label><input type="checkbox" class="club-filter" value="${esc(n)}"> ${esc(n)}</label><br>`
   ).join('');
+  
+  // Also clear any previous selections from the filter panel
+  document.querySelectorAll('.club-filter').forEach(c => c.checked = false);
 }
 
 function applyFiltersAndRender(){
@@ -1083,8 +1084,10 @@ function updateActiveFiltersSummary(){
 
 function updateYearSelectColor(){ if(!yearFilterEl.value) yearFilterEl.style.color = 'var(--red)'; else yearFilterEl.style.color = '#111'; }
 yearFilterEl.addEventListener('change', ()=>{
+  const selectedYear = yearFilterEl.value;
   updateYearSelectColor();
-  document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); if(cb.parentElement) { if(yearFilterEl.value) cb.parentElement.classList.add('show'); else cb.parentElement.classList.remove('show'); } });
+  populateClubList(selectedYear);
+  document.querySelectorAll('#clubs-list input[type=checkbox]').forEach(cb=>{ cb.disabled = !(selectedYear || selectedClubs.has(cb.value)); if(cb.parentElement) { if(selectedYear) cb.parentElement.classList.add('show'); else cb.parentElement.classList.remove('show'); } });
   applyFiltersAndRender();
 });
 updateYearSelectColor();
@@ -1237,11 +1240,15 @@ function initFilterLogic() {
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, initializing LMS Clubs...');
-  fetchClubsCSV();
+  fetchClubsCSV().then(() => {
+    // Populate the club list on initial load based on the current year selection
+    populateClubList(yearFilterEl.value);
+    initFilterLogic(); // Re-initialize logic after list is populated
+  });
 });
 
 // TEST: Trigger ascending cat on page load (disable before deploy)
-window.addEventListener('load', () => showAscendingCat());
+//window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
