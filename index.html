@@ -565,7 +565,10 @@ const showAscendingCat = () => {
     catContainer.style.overflow = 'hidden'; // Prevent any spillover
     
     // Set up the scaled cat image properly
-    catImageElement.style.width = '1125px'; // 150px * 7.5 = 1125px for scale(7.5) effect
+    const pageEl = document.querySelector('.page');
+    const pageWidth = pageEl ? pageEl.offsetWidth : window.innerWidth;
+    catImageElement.style.width = (pageWidth * 0.9) + 'px';
+    catImageElement.style.height = 'auto';
     catImageElement.style.height = 'auto';
     catImageElement.style.borderRadius = '0.75rem';
     catImageElement.style.display = 'block';
@@ -1239,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // TEST: Trigger ascending cat on page load (disable before deploy)
-// window.addEventListener('load', () => showAscendingCat());
+window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
