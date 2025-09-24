@@ -537,79 +537,78 @@ let animationInProgress = false;
 
 // Function to show ascending cat specifically
 const showAscendingCat = () => {
-    // Set animation in progress flag
-    animationInProgress = true;
-    
-    const catIndex = Math.floor(Math.random() * catImages.length);
-    const selectedCatImage = catImages[catIndex];
+  animationInProgress = true;
 
-    // Clear previous animation classes and styles
-    catContainer.classList.remove('is-active', 'from-top', 'from-right', 'from-bottom', 'from-left', 'ascending-cat', 'slide-down');
-    catContainer.style.transform = '';
-    catImageElement.style.transform = '';
+  const catIndex = Math.floor(Math.random() * catImages.length);
+  const selectedCatImage = catImages[catIndex];
 
-    catImageElement.src = selectedCatImage;
-    // Complete reset - remove all classes and inline styles
-    catContainer.className = 'cat-container';
-    catContainer.style.cssText = '';
-    catImageElement.style.cssText = '';
-    
-    // Set up initial position using inline styles (bypassing CSS classes)
-    catContainer.style.position = 'fixed';
-    catContainer.style.bottom = '0';
-    catContainer.style.left = '50%';
-    catContainer.style.transform = 'translate(-50%, 100%)'; // Start completely off-screen
-    catContainer.style.zIndex = '100';
-    catContainer.style.pointerEvents = 'none';
-    catContainer.style.transition = 'none'; // No transition initially
-    catContainer.style.overflow = 'hidden'; // Prevent any spillover
-    
-    // Set up the scaled cat image properly
+  // Reset classes and styles
+  catContainer.className = 'cat-container';
+  catContainer.style.cssText = '';
+  catImageElement.style.cssText = '';
+  catImageElement.src = selectedCatImage;
+
+  // Position container off-screen initially
+  catContainer.style.position = 'fixed';
+  catContainer.style.bottom = '0';
+  catContainer.style.left = '50%';
+  catContainer.style.transform = 'translate(-50%, 100%)';
+  catContainer.style.zIndex = '100';
+  catContainer.style.pointerEvents = 'none';
+  catContainer.style.transition = 'none';
+  catContainer.style.overflow = 'hidden';
+
+  // Helper to set width = 90% of .page
+  const updateCatWidth = () => {
     const pageEl = document.querySelector('.page');
     const pageWidth = pageEl ? pageEl.offsetWidth : window.innerWidth;
     catImageElement.style.width = (pageWidth * 0.9) + 'px';
     catImageElement.style.height = 'auto';
-    catImageElement.style.height = 'auto';
     catImageElement.style.borderRadius = '0.75rem';
     catImageElement.style.display = 'block';
-    
-    // Force reflow
-    catContainer.offsetHeight;
+  };
 
-    // Start the FAST slide up animation
+  updateCatWidth(); // run once immediately
+  window.addEventListener('resize', updateCatWidth);
+
+  // Force reflow
+  catContainer.offsetHeight;
+
+  // Slide up
+  setTimeout(() => {
+    catContainer.style.transition = 'transform 0.4s ease-out';
+    catContainer.style.transform = 'translate(-50%, 35%)';
+
+    // Pause, then slide back down
     setTimeout(() => {
-        catContainer.style.transition = 'transform 0.4s ease-out'; // Fast slide up (0.4s - was 0.8s)
-        catContainer.style.transform = 'translate(-50%, 35%)'; // Stop at about 2/3 visible
+      catContainer.style.transition = 'transform 3s ease-in';
+      catContainer.style.transform = 'translate(-50%, 100%)';
 
-        // After slide up + pause, slide back down SLOWLY
+      // Clean up after animation
+      setTimeout(() => {
+        catContainer.style.display = 'none';
+        catContainer.style.visibility = 'hidden';
+        catContainer.style.opacity = '0';
+        catContainer.style.zIndex = '-999';
+        catContainer.style.transform = 'translate(-50%, 200vh)';
+
+        // Final cleanup
         setTimeout(() => {
-            catContainer.style.transition = 'transform 3s ease-in'; // Slow slide down (3s)
-            catContainer.style.transform = 'translate(-50%, 100%)'; // Slide back down off-screen
+          catContainer.className = 'cat-container';
+          catContainer.style.cssText = '';
+          catImageElement.style.cssText = '';
+          catImageElement.src = '';
 
-            // Clean up after slide down animation completes
-            setTimeout(() => {
-                // Complete invisibility - multiple approaches to ensure it's gone
-                catContainer.style.display = 'none';
-                catContainer.style.visibility = 'hidden';
-                catContainer.style.opacity = '0';
-                catContainer.style.zIndex = '-999';
-                catContainer.style.transform = 'translate(-50%, 200vh)'; // Move way off screen
-                
-                // Final complete cleanup after ensuring invisibility
-                setTimeout(() => {
-                    catContainer.className = 'cat-container';
-                    catContainer.style.cssText = '';
-                    catImageElement.style.cssText = '';
-                    catImageElement.src = ''; // Clear the image source
-                    
-                    // Clear animation in progress flag
-                    animationInProgress = false;
-                }, 200);
-            }, 3000); // Wait for 3s slow slide down to complete
-        }, 900); // 0.4s slide up + 0.5s pause
+          // Remove resize listener so it doesn't linger
+          window.removeEventListener('resize', updateCatWidth);
 
-    }, 100);
+          animationInProgress = false;
+        }, 200);
+      }, 3000); // wait for slide down
+    }, 900); // pause before slide down
+  }, 100);
 };
+
 
 // Function to show cat with random slide animation (excluding ascending cat)
 const showCat = () => {
