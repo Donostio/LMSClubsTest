@@ -173,7 +173,7 @@
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 class="title">pf4</h1>
+  <h1 class="title">PF2</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -967,6 +967,14 @@ function createPrintHTML(title, selectedArr, othersArr, options){
         page-break-inside: avoid;
         break-inside: avoid;
       }
+
+      /* New styles for contiguous cells */
+      .extension-row td {
+          border-top: none;
+      }
+      .extension-cell {
+          border-top: none;
+      }
       
       /* Special positioning for cells containing cats */
       .cat-cell {
@@ -993,7 +1001,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       /* Cat image - fixed positioning to prevent empty first pages */
       .cat-in-cell{ 
         position: absolute; 
-        top: -105px; 
+        top: 5px; 
         left: 50%; 
         transform: translateX(-50%); 
         width: 60px; 
@@ -1059,7 +1067,8 @@ function createPrintHTML(title, selectedArr, othersArr, options){
     </style>
   `;
   
-  let html = `<div id="printable-area">`;
+  let html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>`;
+  html += `<div id="printable-area">`;
   html += `<div class="header">`;
   html += `<h1>${esc(title)}</h1>`;
   html += `<img src="images/PTAlogoH.png" alt="LMS PTA Logo" class="logo">`;
@@ -1068,45 +1077,65 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   if(options.showOtherTitle){
     html += `<div style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`;
   }
+  
   html += `<table><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
-  whens.forEach(w=>{
-    html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
-    days.forEach((d, dayIndex) => {
-      const cell = grid[w][d] || [];
-      let cellHtml = '';
+
+  whens.forEach(w => {
+      // Determine the number of rows needed for this 'When' block based on max clubs per day
+      let maxClubsInRow = 1;
+      days.forEach(d => {
+          const selectedInCell = (grid[w][d] || []).filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
+          maxClubsInRow = Math.max(maxClubsInRow, selectedInCell.length);
+      });
       
-      // Add cat to Wednesday column (index 2) in the first row to avoid title overlap
-      if(dayIndex === 2 && w === whens[0]) {
-        cellHtml += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
+      // Generate rows for this 'When' block
+      for (let i = 0; i < maxClubsInRow; i++) {
+          html += `<tr class="${i > 0 ? 'extension-row' : ''}">`;
+          
+          // Only add the 'When / Day' header to the first row of the block
+          if (i === 0) {
+              html += `<th rowspan="${maxClubsInRow}">${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
+          }
+          
+          days.forEach(d => {
+              const cellClubs = grid[w][d] || [];
+              const selectedInCell = cellClubs.filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
+              const otherInCell = cellClubs.filter(c => othersArr && othersArr.find(o => o.urn === c.urn));
+
+              const selectedClub = selectedInCell[i];
+              const otherClubs = otherInCell;
+
+              // Add special class to cat-containing cell
+              const cellClass = (d === 'Wednesday' && w === whens[0] && i === 0) ? ' class="cat-cell"' : '';
+
+              // Handle cell content
+              let cellContent = '';
+              if (selectedClub) {
+                  const ytext = selectedClub.year.includes('All Years') ? 'All Years' : ('Years: '+esc(selectedClub.year.join(', ')));
+                  cellContent += `<div class="selected-box"><div class="club-name">${esc(selectedClub.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(selectedClub.location)}, <span style="color:#6b7280;">Who:</span> ${esc(selectedClub.staff)}</div></div>`;
+              }
+              
+              if (i === 0) {
+                  otherClubs.forEach(c => {
+                      const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+                      cellContent += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
+                  });
+              }
+              
+              if (d === 'Wednesday' && w === whens[0] && i === 0) {
+                  cellContent += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
+              }
+
+              html += `<td class="${i > 0 ? 'extension-cell' : ''}"${cellClass}>${cellContent || '—'}</td>`;
+          });
+          html += `</tr>`;
       }
-      
-      // Add special class to cat-containing cell
-      const cellClass = (dayIndex === 2 && w === whens[0]) ? ' class="cat-cell"' : '';
-      
-      if(!cell.length){ 
-        html += `<td style="min-height:70px;">${cellHtml}—</td>`; 
-        return; 
-     }
-      cell.forEach(c=>{
-        if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
-          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
-          cellHtml += `<div class="selected-box"><div class="club-name">${esc(c.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(c.location)}, <span style="color:#6b7280;">Who:</span> ${esc(c.staff)}</div></div>`;
-        }
-      });
-      cell.forEach(c=>{
-        if(othersArr && othersArr.find(o=>o.urn === c.urn)){
-          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
-          cellHtml += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
-        }
-      });
-      html += `<td${cellClass}>${cellHtml}</td>`;
-    });
-    html += `</tr>`;
   });
   html += `</tbody></table>`;
   html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
   html += `</div>`;
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
+  html += `</body></html>`;
+  return html;
 }
 
 function printViaIframe(html){
