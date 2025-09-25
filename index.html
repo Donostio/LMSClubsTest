@@ -173,7 +173,7 @@
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 class="title">PF101</h1>
+  <h1 class="title">PF102</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -967,13 +967,13 @@ function createPrintHTML(title, selectedArr, othersArr, options){
         page-break-inside: avoid;
         break-inside: avoid;
       }
-
-      /* New styles for contiguous cells */
+      
+      /* New styles to remove borders on subsequent rows */
       .extension-row td {
-          border-top: none;
+        border-top: none;
       }
       .extension-cell {
-          border-top: none;
+        border-top: none;
       }
       
       /* Special positioning for cells containing cats */
@@ -1081,56 +1081,64 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   html += `<table><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
 
   whens.forEach(w => {
-      // Determine the number of rows needed for this 'When' block based on max clubs per day
-      let maxClubsInRow = 1;
+      // Find the maximum number of selected clubs in any cell for this 'when'
+      let maxSelectedInRow = 0;
       days.forEach(d => {
           const selectedInCell = (grid[w][d] || []).filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
-          maxClubsInRow = Math.max(maxClubsInRow, selectedInCell.length);
+          maxSelectedInRow = Math.max(maxSelectedInRow, selectedInCell.length);
       });
       
-      // Generate rows for this 'When' block
-      for (let i = 0; i < maxClubsInRow; i++) {
-          html += `<tr class="${i > 0 ? 'extension-row' : ''}">`;
+      // We only create extension rows for the 3rd or more club
+      const extensionRows = Math.max(0, maxSelectedInRow - 2);
+
+      // Main row for the first two clubs and other clubs
+      html += `<tr>`;
+      html += `<th rowspan="${1 + extensionRows}">${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
+      days.forEach(d => {
+          const cellClubs = grid[w][d] || [];
+          const selectedInCell = cellClubs.filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
+          const otherInCell = cellClubs.filter(c => othersArr && othersArr.find(o => o.urn === c.urn));
           
-          // Only add the 'When / Day' header to the first row of the block
-          if (i === 0) {
-              html += `<th rowspan="${maxClubsInRow}">${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
-          }
-          
-          days.forEach(d => {
-              const cellClubs = grid[w][d] || [];
-              const selectedInCell = cellClubs.filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
-              const otherInCell = cellClubs.filter(c => othersArr && othersArr.find(o => o.urn === c.urn));
+          const cellClass = (d === 'Wednesday' && w === whens[0]) ? ' class="cat-cell"' : '';
 
-              const selectedClub = selectedInCell[i];
-              const otherClubs = otherInCell;
-
-              // Add special class to cat-containing cell
-              const cellClass = (d === 'Wednesday' && w === whens[0] && i === 0) ? ' class="cat-cell"' : '';
-
-              // Handle cell content
-              let cellContent = '';
-              if (selectedClub) {
-                  const ytext = selectedClub.year.includes('All Years') ? 'All Years' : ('Years: '+esc(selectedClub.year.join(', ')));
-                  cellContent += `<div class="selected-box"><div class="club-name">${esc(selectedClub.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(selectedClub.location)}, <span style="color:#6b7280;">Who:</span> ${esc(selectedClub.staff)}</div></div>`;
-              }
-              
-              if (i === 0) {
-                  otherClubs.forEach(c => {
-                      const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
-                      cellContent += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
-                  });
-              }
-              
-              if (d === 'Wednesday' && w === whens[0] && i === 0) {
-                  cellContent += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
-              }
-
-              html += `<td class="${i > 0 ? 'extension-cell' : ''}"${cellClass}>${cellContent || '—'}</td>`;
+          let cellContent = '';
+          selectedInCell.slice(0, 2).forEach(club => {
+              const ytext = club.year.includes('All Years') ? 'All Years' : ('Years: '+esc(club.year.join(', ')));
+              cellContent += `<div class="selected-box"><div class="club-name">${esc(club.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(club.location)}, <span style="color:#6b7280;">Who:</span> ${esc(club.staff)}</div></div>`;
           });
-          html += `</tr>`;
+
+          otherInCell.forEach(c => {
+              const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+              cellContent += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
+          });
+
+          if (d === 'Wednesday' && w === whens[0]) {
+              cellContent += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
+          }
+
+          html += `<td${cellClass}>${cellContent || '—'}</td>`;
+      });
+      html += `</tr>`;
+
+      // Subsequent rows for the 3rd and more clubs
+      if (extensionRows > 0) {
+        for (let i = 0; i < extensionRows; i++) {
+            html += `<tr class="extension-row">`;
+            days.forEach(d => {
+                const selectedInCell = (grid[w][d] || []).filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
+                const clubContent = selectedInCell[i + 2]; // Get the 3rd club, 4th, etc.
+                if (clubContent) {
+                    const ytext = clubContent.year.includes('All Years') ? 'All Years' : ('Years: '+esc(clubContent.year.join(', ')));
+                    html += `<td class="extension-cell"><div class="selected-box"><div class="club-name">${esc(clubContent.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(clubContent.location)}, <span style="color:#6b7280;">Who:</span> ${esc(clubContent.staff)}</div></div></td>`;
+                } else {
+                    html += `<td class="extension-cell">—</td>`;
+                }
+            });
+            html += `</tr>`;
+        }
       }
   });
+
   html += `</tbody></table>`;
   html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
   html += `</div>`;
