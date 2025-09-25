@@ -988,6 +988,26 @@ function createPrintHTML(title, selectedArr, othersArr, options){
         break-inside: avoid;
       }
       
+      /* Extension row styling for continuation effect */
+      .extension-row {
+        /* Multi-browser page break prevention */
+        -webkit-column-break-inside: avoid;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      .extension-cell {
+        border-top: none !important;
+        border-bottom: 1px solid #ddd;
+        vertical-align: top;
+      }
+      
+      .extension-box {
+        border-top: none !important;
+        margin-top: 0;
+        padding-top: 0;
+      }
+      
       .other-club{ font-style:italic; color:#6b7280; font-size:90%; line-height:0.95; margin-bottom:4px; display:block; }
       
       /* Cat image - fixed positioning to prevent empty first pages */
@@ -1070,23 +1090,53 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   }
   html += `<table><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
   whens.forEach(w=>{
-    html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
+    // First, analyze if we need multiple rows for this time slot
+    const timeSlotData = [];
     days.forEach((d, dayIndex) => {
       const cell = grid[w][d] || [];
-      let cellHtml = '';
+      const selectedClubs = cell.filter(c => selectedArr && selectedArr.find(s=>s.urn === c.urn));
+      const otherClubs = cell.filter(c => othersArr && othersArr.find(o=>o.urn === c.urn));
+      timeSlotData.push({ day: d, dayIndex, selectedClubs, otherClubs, allClubs: cell });
+    });
+    
+    // Calculate maximum number of selected clubs in any single day for this time slot
+    const maxSelectedClubs = Math.max(...timeSlotData.map(data => data.selectedClubs.length));
+    const rowsNeeded = Math.max(1, maxSelectedClubs);
+    
+    // Generate rows for this time slot
+    for(let rowIndex = 0; rowIndex < rowsNeeded; rowIndex++) {
+      const isFirstRow = rowIndex === 0;
+      const isExtensionRow = rowIndex > 0;
       
-      // Add cat to Wednesday column (index 2) in the first row to avoid title overlap
-      if(dayIndex === 2 && w === whens[0]) {
-        cellHtml += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
+      // Row header (time slot name) - only show on first row
+      if(isFirstRow) {
+        html += `<tr><th rowspan="${rowsNeeded}">${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
+      } else {
+        html += `<tr class="extension-row">`;
       }
+      timeSlotData.forEach((data) => {
+        const { day, dayIndex, selectedClubs, otherClubs, allClubs } = data;
+        let cellHtml = '';
       
-      // Add special class to cat-containing cell
-      const cellClass = (dayIndex === 2 && w === whens[0]) ? ' class="cat-cell"' : '';
+        // Add cat to Wednesday column (index 2) in the first row to avoid title overlap
+        if(dayIndex === 2 && w === whens[0] && isFirstRow) {
+          cellHtml += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
+        }
       
-      if(!cell.length){ 
-        html += `<td style="min-height:70px;">${cellHtml}—</td>`; 
-        return; 
-     }
+        // Add special class to cat-containing cell
+        const cellClass = (dayIndex === 2 && w === whens[0] && isFirstRow) ? ' class="cat-cell"' : '';
+        const extensionClass = isExtensionRow ? ' extension-cell' : '';
+        const combinedClass = cellClass || extensionClass ? ` class="${(cellClass.replace(' class="', '').replace('"', '') + ' ' + extensionClass).trim()}"` : '';
+      
+        if(!allClubs.length && isFirstRow){ 
+          html += `<td style="min-height:70px;" rowspan="${rowsNeeded}">${cellHtml}—</td>`; 
+          return; 
+        }
+        
+        if(!allClubs.length && isExtensionRow) {
+          // Skip cells for extension rows where no clubs exist
+          return;
+        }
       cell.forEach(c=>{
         if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
           const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
@@ -1102,6 +1152,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       html += `<td${cellClass}>${cellHtml}</td>`;
     });
     html += `</tr>`;
+    }
   });
   html += `</tbody></table>`;
   html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
@@ -1377,6 +1428,290 @@ window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
