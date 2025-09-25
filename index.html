@@ -173,7 +173,7 @@
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 class="title">Print fix</h1>
+  <h1 class="title">PF2</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -904,7 +904,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   
   const styles = `
     <style>
-      @page { orientation: ${orientation}; margin: 12mm; }
+      @page { size: A4 ${orientation}; margin: 12mm; orientation: ${orientation}; }
       body{ font-family: Inter, Arial, sans-serif; color:#000; margin:0; padding:12px; position: relative; }
       
       /* Header with enhanced page break prevention */
@@ -968,6 +968,12 @@ function createPrintHTML(title, selectedArr, othersArr, options){
         break-inside: avoid;
       }
       
+      /* Special positioning for cells containing cats */
+      .cat-cell {
+        position: relative;
+        overflow: visible;
+      }
+      
       th{ background:#f8fafc; text-align:left; font-weight:700; }
       .club-name{ font-weight:700; display:block; margin-bottom:6px; }
       
@@ -984,8 +990,18 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       
       .other-club{ font-style:italic; color:#6b7280; font-size:90%; line-height:0.95; margin-bottom:4px; display:block; }
       
-      /* Cat image - mobile compatible positioning */
-      .cat-in-cell{ position: absolute; top: -110px; left: 50%; transform: translateX(-50%); width: 60px; height: auto; z-index: 10; opacity: 0.8; }
+      /* Cat image - fixed positioning to prevent empty first pages */
+      .cat-in-cell{ 
+        position: absolute; 
+        top: 5px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        width: 60px; 
+        height: auto; 
+        z-index: 9999; 
+        opacity: 0.9; 
+        pointer-events: none;
+      }
       
       .footer{ 
         margin-top: 20px; 
@@ -1000,16 +1016,44 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       
       /* Enhanced print media queries for phantom page break prevention */
       @media print {
-        .header, .footer, .selected-box, tr, tbody, thead {
+        body {
+          page-break-before: auto;
+        }
+        .header {
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          page-break-after: avoid;
+        }
+        .footer, .selected-box {
           -webkit-column-break-inside: avoid;
           page-break-inside: avoid;
           break-inside: avoid;
         }
         table {
           break-inside: auto;
+          page-break-before: avoid;
+          margin-top: 0;
         }
         thead {
           break-after: avoid;
+          page-break-after: avoid;
+        }
+        tr {
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+          break-inside: avoid;
+          page-break-after: auto;
+        }
+        tbody {
+          -webkit-column-break-inside: avoid;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        /* Prevent empty first pages caused by cat positioning */
+        .cat-in-cell {
+          page-break-before: avoid;
+          page-break-after: avoid;
         }
       }
     </style>
@@ -1031,10 +1075,13 @@ function createPrintHTML(title, selectedArr, othersArr, options){
       const cell = grid[w][d] || [];
       let cellHtml = '';
       
-      // Add cat to Tuesday column (index 1) in the first row
-      if(dayIndex === 1 && w === whens[0]) {
+      // Add cat to Wednesday column (index 2) in the first row to avoid title overlap
+      if(dayIndex === 2 && w === whens[0]) {
         cellHtml += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
       }
+      
+      // Add special class to cat-containing cell
+      const cellClass = (dayIndex === 2 && w === whens[0]) ? ' class="cat-cell"' : '';
       
       if(!cell.length){ 
         html += `<td style="min-height:70px;">${cellHtml}—</td>`; 
@@ -1052,7 +1099,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
           cellHtml += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
         }
       });
-      html += `<td>${cellHtml}</td>`;
+      html += `<td${cellClass}>${cellHtml}</td>`;
     });
     html += `</tr>`;
   });
@@ -1326,10 +1373,107 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // TEST: Trigger ascending cat on page load (disable before deploy)
-//window.addEventListener('load', () => showAscendingCat());
+window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
