@@ -126,7 +126,7 @@
       transform: scale(7.5);
     }
     @media print {
-      @page { orientation: landscape; margin:12mm; }
+      @page { size: A4 landscape; margin:12mm; } /* Changed 'landscape' to 'A4 landscape' to suggest landscape, not force it */
       body { background:#fff; }
       #filter-panel, #filter-btn, #search-input, .filter-overlay { display:none !important; }
       /* printable area visibility handled by generated print HTML */
@@ -173,7 +173,7 @@
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 class="title">PF101</h1>
+  <h1 class="title">Gaz 1</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -370,9 +370,9 @@
     </main>
 
 <div style="text-align:center;font-size:12px;color:var(--muted);margin-top:32px;">
-  <div style="color:var(--muted);">This site is maintained by the PTA and class reps ðŸŒ¹</div>
+  <div style="color:var(--muted);">This site is maintained by the PTA and class reps 🌹</div>
   <div style="margin-top:6px;color:var(--muted);">
-    Your feedback helps us make the site better for everyone <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red)">Please share your thoughtsðŸ'¬</a>
+    Your feedback helps us make the site better for everyone <a href="https://forms.gle/5Gdrj6RPAEXf7jKy8" target="_blank" rel="noopener" style="color:var(--red)">Please share your thoughts💬</a>
   </div>
 </div>
 
@@ -381,7 +381,7 @@
   <aside id="filter-panel" class="filter-panel" aria-hidden="true" role="region" aria-label="Filters">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
       <h2 style="margin:0;font-size:18px;">Filters</h2>
-      <button id="close-filter" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">âœ•</button>
+      <button id="close-filter" style="background:#f3f4f6;border-radius:8px;padding:8px;border:none;cursor:pointer;">✕</button>
     </div>
 
     <div style="margin-bottom:14px;background:#f3f4f6;padding:10px;border-radius:10px;">
@@ -685,7 +685,7 @@ async function fetchClubsCSV(){
     updateActiveFiltersSummary();
   }catch(err){
     console.error('Failed to load clubs.csv', err);
-    clubsListEl.innerHTML = '<div style="padding:14px;background:#fff;border-radius:10px;color:#b91c1c">Error loading clubs.csv â€" check file and console</div>';
+    clubsListEl.innerHTML = '<div style="padding:14px;background:#fff;border-radius:10px;color:#b91c1c">Error loading clubs.csv — check file and console</div>';
   }
 }
 
@@ -761,9 +761,9 @@ function renderClubs(){
 
     card.innerHTML = `
       <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
-      <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} â€¢ ${esc(club.when)}</div>
+      <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
       <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
-      <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> â€¢ Who: <span class="muted">${esc(club.staff)}</span></div>
+      <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
     `;
 
     const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
@@ -858,24 +858,6 @@ function updatePrintControls(){
    - Selected clubs boxed with Where/Who
    - Others grey italic smaller
    ----------------------------- */
-
-// Analyze club density per day to determine optimal print orientation
-function analyzeClubDensity(selectedClubs, grid, days, whens) {
-  let maxClubsPerDay = 0;
-  
-  days.forEach(day => {
-    let clubsThisDay = 0;
-    whens.forEach(when => {
-      const cell = grid[when][day] || [];
-      clubsThisDay += cell.filter(c => selectedClubs.find(s => s.urn === c.urn)).length;
-    });
-    maxClubsPerDay = Math.max(maxClubsPerDay, clubsThisDay);
-  });
-  
-  // Switch to portrait if any single day has more than 5 selected clubs
-  return maxClubsPerDay > 5 ? 'portrait' : 'landscape';
-}
-
 function buildGridForPrint(clubs){
   const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
   const whens = ['Before School','Lunchtime','After School'];
@@ -895,193 +877,29 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   const combined = (selectedArr || []).concat(othersArr || []);
   const { grid, days, whens } = buildGridForPrint(combined);
   
-  // Determine optimal print orientation based on selected club density
-  const orientation = analyzeClubDensity(selectedArr || [], grid, days, whens);
-  
   // Select random cat image for print
   const catImages = ['images/11C.png', 'images/22C.png', 'images/33.png'];
   const randomCat = catImages[Math.floor(Math.random() * catImages.length)];
   
   const styles = `
     <style>
-      @page { size: A4 ${orientation}; margin: 12mm; orientation: ${orientation}; }
+      @page { size: A4 landscape; margin: 12mm; } /* Changed 'landscape' to 'A4 landscape' to suggest landscape, not force it */
       body{ font-family: Inter, Arial, sans-serif; color:#000; margin:0; padding:12px; position: relative; }
-      
-      /* Header with enhanced page break prevention */
-      .header{ 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        margin-bottom: 12px; 
-        /* Multi-browser page break prevention */
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      
+      .header{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
       h1{ font-size:18pt; margin:0; flex-grow: 1; }
       .logo{ height: 70px; }
-      
-      /* Table with enhanced mobile compatibility - preserve table semantics */
-      table{ 
-        width:100%; 
-        border-collapse:collapse; 
-        table-layout: auto; 
-        font-size:10pt; 
-        position: relative;
-        /* Multi-browser page break prevention */
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-        border-top: 2px solid #ccc;
-        border-bottom: 2px solid #ccc;
-      }
-      
-      thead{ 
-        display: table-header-group;
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      
-      tbody{ 
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      
-      /* Preserve table row semantics while preventing breaks */
-      tr{ 
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        page-break-after: auto;
-        break-inside: avoid;
-      }
-      
-      th,td{ 
-        border:1px solid #fff; 
-        padding:6px; 
-        vertical-align:top; 
-        word-break:break-word; 
-        position: relative;
-        /* Multi-browser page break prevention */
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      
-      /* New styles for contiguous cells and separating When sections */
-      .extension-row td {
-        border-top: none;
-      }
-      .extension-cell {
-        border-top: none;
-      }
-      .when-day-header {
-        border-bottom: 1px solid #ccc !important;
-      }
-      .when-row td {
-        border-bottom: 1px solid #ccc;
-      }
-      
-      /* Section separator line between When sections */
-      .section-separator {
-        border-bottom: 2px solid #ccc !important;
-      }
-
-      /* Special positioning for cells containing cats */
-      .cat-cell {
-        position: relative;
-        overflow: visible;
-      }
-      
+      table{ width:100%; border-collapse:collapse; table-layout:fixed; font-size:10pt; position: relative; }
+      th,td{ border:1px solid #ddd; padding:6px; vertical-align:top; word-break:break-word; position: relative; }
       th{ background:#f8fafc; text-align:left; font-weight:700; }
       .club-name{ font-weight:700; display:block; margin-bottom:6px; }
-      
-      /* Selected box with enhanced break prevention */
-      .selected-box{ 
-        border:2px solid #000; 
-        padding:6px; 
-        margin-bottom:6px;
-        /* Multi-browser page break prevention */
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      
+      .selected-box{ border:2px solid #000; padding:6px; margin-bottom:6px; }
       .other-club{ font-style:italic; color:#6b7280; font-size:90%; line-height:0.95; margin-bottom:4px; display:block; }
-      
-      /* Cat image - fixed positioning to prevent empty first pages */
-      .cat-in-cell{ 
-        position: absolute; 
-        top: -110px; 
-        left: 50%; 
-        transform: translateX(-50%); 
-        width: 60px; 
-        height: auto; 
-        z-index: 9999; 
-        opacity: 0.9; 
-        pointer-events: none;
-      }
-      
-      .footer{ 
-        margin-top: 20px; 
-        text-align: center; 
-        font-size: 8pt; 
-        color: #6b7280;
-        /* Multi-browser page break prevention */
-        -webkit-column-break-inside: avoid;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      
-      /* Enhanced print media queries for phantom page break prevention */
-      @media print {
-        body {
-          page-break-before: auto;
-        }
-        .header {
-          -webkit-column-break-inside: avoid;
-          page-break-inside: avoid;
-          break-inside: avoid;
-          page-break-after: avoid;
-        }
-        .footer, .selected-box {
-          -webkit-column-break-inside: avoid;
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-        table {
-          break-inside: auto;
-          page-break-before: avoid;
-          margin-top: 0;
-        }
-        thead {
-          break-after: avoid;
-          page-break-after: avoid;
-        }
-        tr {
-          -webkit-column-break-inside: avoid;
-          page-break-inside: avoid;
-          break-inside: avoid;
-          page-break-after: auto;
-        }
-        tbody {
-          -webkit-column-break-inside: avoid;
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-        /* Prevent empty first pages caused by cat positioning */
-        .cat-in-cell {
-          page-break-before: avoid;
-          page-break-after: avoid;
-        }
-      }
+      .cat-in-cell{ position: absolute; top: -110px; left: 50%; transform: translateX(-50%); width: 60px; height: auto; z-index: 10; opacity: 0.8; }
+      .footer{ margin-top: 20px; text-align: center; font-size: 8pt; color: #6b7280; }
     </style>
   `;
   
-  let html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>`;
-  html += `<div id="printable-area">`;
+  let html = `<div id="printable-area">`;
   html += `<div class="header">`;
   html += `<h1>${esc(title)}</h1>`;
   html += `<img src="images/PTAlogoH.png" alt="LMS PTA Logo" class="logo">`;
@@ -1090,75 +908,42 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   if(options.showOtherTitle){
     html += `<div style="font-style:italic;color:#6b7280;margin-bottom:8px;">Other clubs available to me</div>`;
   }
-  
   html += `<table><thead><tr><th style="width:16%;">When / Day</th>${days.map(d=>`<th>${d}</th>`).join('')}</tr></thead><tbody>`;
-
-  whens.forEach((w, index) => {
-      const isLastWhen = index === whens.length - 1;
-      // Determine the number of rows needed for this 'When' block based on max clubs per day
-      let maxClubsInRow = 1;
-      days.forEach(d => {
-          const selectedInCell = (grid[w][d] || []).filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
-          maxClubsInRow = Math.max(maxClubsInRow, selectedInCell.length);
-      });
+  whens.forEach(w=>{
+    html += `<tr><th>${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
+    days.forEach((d, dayIndex) => {
+      const cell = grid[w][d] || [];
+      let cellHtml = '';
       
-      // Generate rows for this 'When' block
-      for (let i = 0; i < maxClubsInRow; i++) {
-          const isFirstRowOfSection = i === 0;
-          const isLastRowOfSection = i === maxClubsInRow - 1;
-          
-          html += `<tr class="${i > 0 ? 'extension-row' : ''}">`;
-          
-          // Only add the 'When / Day' header to the first row of the block
-          if (isFirstRowOfSection) {
-              html += `<th rowspan="${maxClubsInRow}" class="when-day-header">${w}<div style="font-size:10pt;color:#6b7280;margin-top:6px;">${w === 'Before School' ? '08:00-08:30' : w === 'Lunchtime' ? '13:00-13:30' : '15:30-16:30'}</div></th>`;
-          }
-          
-          days.forEach(d => {
-              const cellClubs = grid[w][d] || [];
-              const selectedInCell = cellClubs.filter(c => selectedArr && selectedArr.find(s => s.urn === c.urn));
-              const otherInCell = cellClubs.filter(c => othersArr && othersArr.find(o => o.urn === c.urn));
-
-              const selectedClub = selectedInCell[i];
-              const otherClubs = otherInCell;
-
-              // Add special class to cat-containing cell
-              const cellClass = (d === 'Wednesday' && w === whens[0] && i === 0) ? ' class="cat-cell"' : '';
-              
-              // Add section separator class to last row of each section (except the last section)
-              let cellClassWithSeparator = cellClass;
-              if (isLastRowOfSection && !isLastWhen) {
-                  cellClassWithSeparator = cellClass ? cellClass.replace('class="', 'class="section-separator ') : ' class="section-separator"';
-              }
-
-              // Handle cell content - no dashes for empty cells
-              let cellContent = '';
-              if (selectedClub) {
-                  const ytext = selectedClub.year.includes('All Years') ? 'All Years' : ('Years: '+esc(selectedClub.year.join(', ')));
-                  cellContent += `<div class="selected-box"><div class="club-name">${esc(selectedClub.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(selectedClub.location)}, <span style="color:#6b7280;">Who:</span> ${esc(selectedClub.staff)}</div></div>`;
-              }
-              
-              if (i === 0) {
-                  otherClubs.forEach(c => {
-                      const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
-                      cellContent += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
-                  });
-              }
-              
-              if (d === 'Wednesday' && w === whens[0] && i === 0) {
-                  cellContent += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
-              }
-
-              html += `<td${cellClassWithSeparator}>${cellContent}</td>`;
-          });
-          html += `</tr>`;
+      // Add cat to Tuesday column (index 1) in the first row
+      if(dayIndex === 1 && w === whens[0]) {
+        cellHtml += `<img src="${randomCat}" alt="cat" class="cat-in-cell">`;
       }
+      
+      if(!cell.length){ 
+        html += `<td style="min-height:70px;">${cellHtml}—</td>`; 
+        return; 
+     }
+      cell.forEach(c=>{
+        if(selectedArr && selectedArr.find(s=>s.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+          cellHtml += `<div class="selected-box"><div class="club-name">${esc(c.name)}</div><div style="font-size:10pt;color:#000;">${ytext}</div><div style="font-size:10pt;color:#000;margin-top:6px;"><span style="color:#6b7280;">Where:</span> ${esc(c.location)}, <span style="color:#6b7280;">Who:</span> ${esc(c.staff)}</div></div>`;
+        }
+      });
+      cell.forEach(c=>{
+        if(othersArr && othersArr.find(o=>o.urn === c.urn)){
+          const ytext = c.year.includes('All Years') ? 'All Years' : ('Years: '+esc(c.year.join(', ')));
+          cellHtml += `<div class="other-club">${esc(c.name)} (${esc(ytext)})</div>`;
+        }
+      });
+      html += `<td>${cellHtml}</td>`;
+    });
+    html += `</tr>`;
   });
   html += `</tbody></table>`;
   html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
   html += `</div>`;
-  html += `</body></html>`;
-  return html;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
 }
 
 function printViaIframe(html){
@@ -1168,7 +953,7 @@ function printViaIframe(html){
   doc.write(html);
   doc.close();
   setTimeout(()=>{
-    try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print â€" please use your browser print command.'); }
+    try{ iframe.contentWindow.focus(); iframe.contentWindow.print(); }catch(e){ alert('Unable to trigger print — please use your browser print command.'); }
   }, 400);
 }
 
@@ -1425,7 +1210,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // TEST: Trigger ascending cat on page load (disable before deploy)
-window.addEventListener('load', () => showAscendingCat());
+//window.addEventListener('load', () => showAscendingCat());
 </script>
 </body>
 </html>
