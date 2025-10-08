@@ -537,8 +537,8 @@ const ascendingCatMax = 120;
 let nextAscendingCatInteraction = Math.floor(Math.random() * (ascendingCatMax - ascendingCatMin + 1)) + ascendingCatMin;
 
 // 30-second minimum delay tracking
-let lastCatTime = 0;
-const CAT_MIN_DELAY = 30000; // 30 seconds in milliseconds
+let lastCatTime = Date.now();
+const CAT_MIN_DELAY = 20000; // 30 seconds in milliseconds
 
 // Flag to prevent multiple animations running simultaneously
 let animationInProgress = false;
@@ -802,24 +802,25 @@ function buildClubCard(club){
    ----------------------------- */
 // Special club note logic removed as requested
 
-function renderClubs(){
+function renderClubs() {
   const f = getActiveFilters();
   const filtered = clubsData.filter(c => clubMatchesFilter(c, f));
 
   clubsListEl.innerHTML = '';
-  clubsListEl.classList.add('weekday-grid'); // enable weekday column layout
+  clubsListEl.classList.add('weekday-grid');
 
   const noResultsEl = document.getElementById('no-results');
-  if(filtered.length === 0){
-    if(noResultsEl) noResultsEl.style.display = 'block';
+  if (filtered.length === 0) {
+    if (noResultsEl) noResultsEl.style.display = 'block';
     return;
   } else {
-    if(noResultsEl) noResultsEl.style.display = 'none';
+    if (noResultsEl) noResultsEl.style.display = 'none';
   }
 
-  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const timeOrder = ['Before School', 'Lunchtime', 'After School'];
 
-  days.forEach(day=>{
+  days.forEach(day => {
     const col = document.createElement('div');
     col.className = 'day-column';
 
@@ -828,10 +829,18 @@ function renderClubs(){
     header.textContent = day;
     col.appendChild(header);
 
-    filtered.filter(c => c.day === day).forEach(club=>{
-      col.appendChild(buildClubCard(club));
-    });
+    // Filter clubs for this day and sort by time category
+    const clubsForDay = filtered
+      .filter(c => c.day === day)
+      .sort((a, b) => {
+        const iA = timeOrder.indexOf(a.when);
+        const iB = timeOrder.indexOf(b.when);
+        const aIdx = (iA === -1) ? 999 : iA;
+        const bIdx = (iB === -1) ? 999 : iB;
+        return aIdx - bIdx;
+      });
 
+    clubsForDay.forEach(club => col.appendChild(buildClubCard(club)));
     clubsListEl.appendChild(col);
   });
 }
