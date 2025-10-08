@@ -7,8 +7,9 @@
   <link rel="icon" type="image/png" href="lms_logo.png">
   
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNV90DS36X"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
+  \1// Start 20s "quiet period" for cats after page load
+window.addEventListener('load', function(){ window.__catsEnabledAt = Date.now() + 20000; });
+window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
@@ -32,12 +33,6 @@
     .print-controls { display:flex; align-items:center; gap:8px; margin-top:6px; }
     #search-input {padding:10px;border-radius:10px;border:1px solid #e6e6e6;width:20%;min-width:200px;}
     #clubs-list {display:grid;grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));gap:14px;margin-top:12px;}
-/* Five weekday columns on desktop; stack to one column on mobile */
-#clubs-list.weekday-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:start;}
-.day-column{display:flex;flex-direction:column;gap:14px;}
-.day-col-header{font-weight:700;font-size:14px;color:#111;padding:6px 4px 8px;border-bottom:1px solid #e6e6e6;margin-bottom:4px;}
-@media (max-width:720px){#clubs-list.weekday-grid{grid-template-columns:1fr}.day-col-header{position:sticky;top:0;background:#fff;}}
-
     .club-card {position:relative;background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:14px;color:#111;transition: box-shadow .15s ease, transform .12s ease;min-height:120px;}
     .club-card:hover {transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,0.06);}
     .muted {color:var(--muted);}
@@ -132,7 +127,7 @@
       transform: scale(7.5);
     }
     @media print {
-      @page { size: A4 landscape; margin:12mm; } /* Changed 'landscape' to 'A4 landscape' to suggest landscape, not force it */
+      @page { size: landscape; margin:12mm; }
       body { background:#fff; }
       #filter-panel, #filter-btn, #search-input, .filter-overlay { display:none !important; }
       /* printable area visibility handled by generated print HTML */
@@ -163,7 +158,24 @@
     /* Filter summary repositioning */
     .search-filter-row { display:flex; align-items:flex-end; gap:12px; }
     #active-filters-summary { margin-left:12px; transform:translateY(-100%); }
-  </style>
+  
+/* ===== Weekday grid on desktop; single column on mobile ===== */
+#clubs-list.weekday-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:14px;
+  align-items:start;
+}
+.day-column{display:flex;flex-direction:column;gap:14px}
+.day-col-header{
+  font-weight:700;font-size:14px;color:#111;
+  padding:6px 4px 8px;border-bottom:1px solid #e6e6e6;margin-bottom:4px;
+}
+@media (max-width:720px){
+  #clubs-list.weekday-grid{grid-template-columns:1fr}
+  .day-col-header{position:sticky;top:0;background:#fff}
+}
+</style>
 </head>
 <body>
   <div id="cat-container" class="cat-container">
@@ -179,7 +191,7 @@
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 class="title">Gaz 1</h1>
+  <h1 class="title">TEST Lady Margaret School, Clubs 2025-26</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -596,10 +608,12 @@ const showCat = () => {
     }, 4000);
 };
 
-const handleInteraction = () => {
-    const currentTime = Date.now();
-    
-    // Always increment counters
+\1
+    // Respect 20s delay after page load: block all cat animations until then
+    if (typeof window.__catsEnabledAt === 'number' && currentTime < window.__catsEnabledAt) {
+        return;
+    }
+// Always increment counters
     ascendingCatCount++;
     interactionCount++;
     
@@ -739,21 +753,15 @@ function clubMatchesFilter(club, f){
   return true;
 }
 
-/* -----------------------------
-   Render club cards
-   ----------------------------- */
-// Special club note logic removed as requested
 
-
-// Build one club card (extracted from original renderClubs)
+/* Build a single club card (reuses existing styles/logic) */
 function buildClubCard(club){
   const card = document.createElement('div');
   card.className = 'club-card';
   if(selectedClubs.has(club.urn)) card.classList.add('selected');
 
-  let yearsText = '';
-  if(Array.isArray(club.year) && club.year.includes('All Years')) yearsText = 'All Years';
-  else yearsText = Array.isArray(club.year) ? club.year.join(', ') : String(club.year || '');
+  let yearsText = Array.isArray(club.year) ? club.year.join(', ') : String(club.year || '');
+  if (/all\s*years/i.test(yearsText)) yearsText = 'All Years';
   yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
 
   card.innerHTML = `
@@ -763,36 +771,46 @@ function buildClubCard(club){
     <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
   `;
 
-  const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
-  if(yearFilterEl.value) cbWrap.classList.add('show'); // only show checkbox when year selected
-  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = club.urn; cb.checked = selectedClubs.has(club.urn);
-  cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); // disable until year selected
+  const cbWrap = document.createElement('div'); 
+  cbWrap.className = 'club-select-box';
+  if(yearFilterEl.value) cbWrap.classList.add('show');
+
+  const cb = document.createElement('input'); 
+  cb.type = 'checkbox'; 
+  cb.value = club.urn; 
+  cb.checked = selectedClubs.has(club.urn);
+  cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value));
   cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
+
   cb.addEventListener('change', (e)=>{
     if(e.target.checked){
-      if(checkForDuplicateClub(club)){
-        showToastMessage('You have more than one club at that time. Please check your selections.', card);
-      }
-      selectedClubs.add(club.urn);
+      if(checkForDuplicateClub(club)){ showToastMessage('You have more than one club at that time...', card); }
+      selectedClubs.add(club.urn); 
       card.classList.add('selected');
     } else {
-      selectedClubs.delete(club.urn);
+      selectedClubs.delete(club.urn); 
       card.classList.remove('selected');
     }
-    saveSelections();
+    saveSelections(); 
     updatePrintControls();
   });
-  cbWrap.appendChild(cb);
+
+  cbWrap.appendChild(cb); 
   card.appendChild(cbWrap);
   return card;
 }
+
+/* -----------------------------
+   Render club cards
+   ----------------------------- */
+// Special club note logic removed as requested
 
 function renderClubs(){
   const f = getActiveFilters();
   const filtered = clubsData.filter(c => clubMatchesFilter(c, f));
 
   clubsListEl.innerHTML = '';
-  clubsListEl.classList.add('weekday-grid'); // enable weekday grid layout
+  clubsListEl.classList.add('weekday-grid'); // enable weekday column layout
 
   const noResultsEl = document.getElementById('no-results');
   if(filtered.length === 0){
@@ -820,7 +838,6 @@ function renderClubs(){
     clubsListEl.appendChild(col);
   });
 }
-
 /* -----------------------------
    Print controls & printing
    - Single Print Year-group Timetable button only
@@ -912,7 +929,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   
   const styles = `
     <style>
-      @page { size: A4 landscape; margin: 12mm; } /* Changed 'landscape' to 'A4 landscape' to suggest landscape, not force it */
+      @page { size: A4 landscape; margin: 12mm; }
       body{ font-family: Inter, Arial, sans-serif; color:#000; margin:0; padding:12px; position: relative; }
       .header{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
       h1{ font-size:18pt; margin:0; flex-grow: 1; }
@@ -1243,5 +1260,99 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
