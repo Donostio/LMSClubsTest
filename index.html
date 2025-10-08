@@ -32,6 +32,12 @@
     .print-controls { display:flex; align-items:center; gap:8px; margin-top:6px; }
     #search-input {padding:10px;border-radius:10px;border:1px solid #e6e6e6;width:20%;min-width:200px;}
     #clubs-list {display:grid;grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));gap:14px;margin-top:12px;}
+/* Five weekday columns on desktop; stack to one column on mobile */
+#clubs-list.weekday-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;align-items:start;}
+.day-column{display:flex;flex-direction:column;gap:14px;}
+.day-col-header{font-weight:700;font-size:14px;color:#111;padding:6px 4px 8px;border-bottom:1px solid #e6e6e6;margin-bottom:4px;}
+@media (max-width:720px){#clubs-list.weekday-grid{grid-template-columns:1fr}.day-col-header{position:sticky;top:0;background:#fff;}}
+
     .club-card {position:relative;background:#fff;border:1px solid #e6e6e6;border-radius:12px;padding:14px;color:#111;transition: box-shadow .15s ease, transform .12s ease;min-height:120px;}
     .club-card:hover {transform:translateY(-4px);box-shadow:0 8px 28px rgba(0,0,0,0.06);}
     .muted {color:var(--muted);}
@@ -738,57 +744,80 @@ function clubMatchesFilter(club, f){
    ----------------------------- */
 // Special club note logic removed as requested
 
+
+// Build one club card (extracted from original renderClubs)
+function buildClubCard(club){
+  const card = document.createElement('div');
+  card.className = 'club-card';
+  if(selectedClubs.has(club.urn)) card.classList.add('selected');
+
+  let yearsText = '';
+  if(Array.isArray(club.year) && club.year.includes('All Years')) yearsText = 'All Years';
+  else yearsText = Array.isArray(club.year) ? club.year.join(', ') : String(club.year || '');
+  yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
+
+  card.innerHTML = `
+    <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
+    <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
+    <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
+    <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
+  `;
+
+  const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
+  if(yearFilterEl.value) cbWrap.classList.add('show'); // only show checkbox when year selected
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = club.urn; cb.checked = selectedClubs.has(club.urn);
+  cb.disabled = !(yearFilterEl.value || selectedClubs.has(cb.value)); // disable until year selected
+  cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
+  cb.addEventListener('change', (e)=>{
+    if(e.target.checked){
+      if(checkForDuplicateClub(club)){
+        showToastMessage('You have more than one club at that time. Please check your selections.', card);
+      }
+      selectedClubs.add(club.urn);
+      card.classList.add('selected');
+    } else {
+      selectedClubs.delete(club.urn);
+      card.classList.remove('selected');
+    }
+    saveSelections();
+    updatePrintControls();
+  });
+  cbWrap.appendChild(cb);
+  card.appendChild(cbWrap);
+  return card;
+}
+
 function renderClubs(){
   const f = getActiveFilters();
   const filtered = clubsData.filter(c => clubMatchesFilter(c, f));
+
   clubsListEl.innerHTML = '';
+  clubsListEl.classList.add('weekday-grid'); // enable weekday grid layout
+
+  const noResultsEl = document.getElementById('no-results');
   if(filtered.length === 0){
-    document.getElementById('no-results').style.display = 'block';
+    if(noResultsEl) noResultsEl.style.display = 'block';
+    return;
   } else {
-    document.getElementById('no-results').style.display = 'none';
+    if(noResultsEl) noResultsEl.style.display = 'none';
   }
 
-  filtered.forEach(club=>{
-    const card = document.createElement('div');
-    card.className = 'club-card';
-    if(selectedClubs.has(club.urn)) card.classList.add('selected');
+  const days = ['Monday','Tuesday','Wednesday','Thursday','Friday'];
 
-    let yearsText = '';
-    if(club.year.includes('All Years')) yearsText = 'All Years';
-    else yearsText = club.year.join(', ');
-    // Always show "Years:" prefix regardless of filter selection
-    yearsText = `<span class="muted">Years:</span> ${esc(yearsText)}`;
+  days.forEach(day=>{
+    const col = document.createElement('div');
+    col.className = 'day-column';
 
-    card.innerHTML = `
-      <div style="font-weight:700;font-size:15px;margin-bottom:6px;color:#111;">${esc(club.name)}</div>
-      <div style="font-size:13px;color:#111;margin-bottom:6px;">${esc(club.day)} • ${esc(club.when)}</div>
-      <div style="font-size:12px;color:#111;margin-bottom:6px;">${yearsText}</div>
-      <div style="font-size:12px;color:var(--muted);">Where: <span class="muted">${esc(club.location)}</span> • Who: <span class="muted">${esc(club.staff)}</span></div>
-    `;
+    const header = document.createElement('div');
+    header.className = 'day-col-header';
+    header.textContent = day;
+    col.appendChild(header);
 
-    const cbWrap = document.createElement('div'); cbWrap.className = 'club-select-box';
-    if(yearFilterEl.value) cbWrap.classList.add('show'); // only show checkbox when year selected
-    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = club.urn; cb.checked = selectedClubs.has(club.urn);
-    cb.disabled = !(yearFilterEl.value || selectedClubs.has(club.urn));
-    cb.title = cb.disabled ? 'Select a year to enable selection' : 'Select this club';
-    cb.addEventListener('change', (e)=>{
-      if(e.target.checked){
-        // Check for duplicate clubs
-        if(checkForDuplicateClub(club)){
-          showToastMessage('You have more than one club at that time...', card);
-        }
-        selectedClubs.add(club.urn);
-        card.classList.add('selected');
-      } else {
-        selectedClubs.delete(club.urn);
-        card.classList.remove('selected');
-      }
-      saveSelections();
-      updatePrintControls();
+    filtered.filter(c => c.day === day).forEach(club=>{
+      col.appendChild(buildClubCard(club));
     });
-    cbWrap.appendChild(cb);
-    card.appendChild(cbWrap);
-    clubsListEl.appendChild(card);
+
+    clubsListEl.appendChild(col);
   });
 }
 
