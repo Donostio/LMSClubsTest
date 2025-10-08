@@ -174,6 +174,18 @@
   #clubs-list.weekday-grid{grid-template-columns:1fr}
   .day-col-header{position:sticky;top:0;background:#fff}
 }
+
+/* ===== Time-based colour tints for club cards ===== */
+.club-card[data-when="Before School"] {
+  background-color: rgba(255, 255, 0, 0.15); /* soft yellow */
+}
+.club-card[data-when="Lunchtime"] {
+  background-color: rgba(0, 128, 255, 0.15); /* soft blue */
+}
+.club-card[data-when="After School"] {
+  background-color: rgba(0, 200, 0, 0.15); /* soft green */
+}
+
 </style>
 </head>
 <body>
@@ -754,7 +766,8 @@ function clubMatchesFilter(club, f){
 /* Build a single club card (reuses existing styles/logic) */
 function buildClubCard(club){
   const card = document.createElement('div');
-  card.className = 'club-card';
+card.className = 'club-card';
+  card.setAttribute('data-when', club.when || '');
   if(selectedClubs.has(club.urn)) card.classList.add('selected');
 
   let yearsText = Array.isArray(club.year) ? club.year.join(', ') : String(club.year || '');
