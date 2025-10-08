@@ -986,24 +986,7 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   html += `</tbody></table>`;
   html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
   html += `</div>`;
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}
-<!-- Cat delay: 20s quiet period after page load (non-invasive wrapper) -->
-<script>
-window.addEventListener('load', function(){
-  // when to allow cats
-  window.__catsEnabledAt = Date.now() + 20000;
-  // if the site defines handleInteraction, wrap it to respect the delay
-  if (typeof window.handleInteraction === 'function') {
-    const __origHandleInteraction = window.handleInteraction;
-    window.handleInteraction = function(){
-      if (Date.now() < window.__catsEnabledAt) return;
-      return __origHandleInteraction.apply(this, arguments);
-    };
-  }
-});
-</script>
-
-</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
 }
 
 function printViaIframe(html){
@@ -1272,22 +1255,5 @@ document.addEventListener('DOMContentLoaded', function() {
 // TEST: Trigger ascending cat on page load (disable before deploy)
 //window.addEventListener('load', () => showAscendingCat());
 </script>
-
-<!-- Cat delay: 20s quiet period after page load (non-invasive wrapper) -->
-<script>
-window.addEventListener('load', function(){
-  // when to allow cats
-  window.__catsEnabledAt = Date.now() + 20000;
-  // if the site defines handleInteraction, wrap it to respect the delay
-  if (typeof window.handleInteraction === 'function') {
-    const __origHandleInteraction = window.handleInteraction;
-    window.handleInteraction = function(){
-      if (Date.now() < window.__catsEnabledAt) return;
-      return __origHandleInteraction.apply(this, arguments);
-    };
-  }
-});
-</script>
-
 </body>
 </html>
