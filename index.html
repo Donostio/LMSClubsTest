@@ -7,9 +7,8 @@
   <link rel="icon" type="image/png" href="lms_logo.png">
   
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNV90DS36X"></script>
-  \1// Start 20s "quiet period" for cats after page load
-window.addEventListener('load', function(){ window.__catsEnabledAt = Date.now() + 20000; });
-window.dataLayer = window.dataLayer || [];
+  <script>
+    window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
 
@@ -191,7 +190,7 @@ window.dataLayer = window.dataLayer || [];
       <img src="images/PTAlogoH.png" alt="LMS PTA Logo">
     </a>
   </div>
-  <h1 class="title">TEST Lady Margaret School, Clubs 2025-26</h1>
+  <h1 class="title">Lady Margaret School, Clubs 2025-26</h1>
 
   <div class="actions">
     <a href="lms_clubs_guide.html" class="guide-link">Guide to using this site</a>
@@ -608,12 +607,10 @@ const showCat = () => {
     }, 4000);
 };
 
-\1
-    // Respect 20s delay after page load: block all cat animations until then
-    if (typeof window.__catsEnabledAt === 'number' && currentTime < window.__catsEnabledAt) {
-        return;
-    }
-// Always increment counters
+const handleInteraction = () => {
+    const currentTime = Date.now();
+    
+    // Always increment counters
     ascendingCatCount++;
     interactionCount++;
     
@@ -989,7 +986,24 @@ function createPrintHTML(title, selectedArr, othersArr, options){
   html += `</tbody></table>`;
   html += `<div class="footer">This tool is provided by LMS PTA and class reps. Your feedback helps us make the timetable better for everyone. Please share your thoughts here bit.ly/PTAclubsFeedback</div>`;
   html += `</div>`;
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title>${styles}</head><body>${html}
+<!-- Cat delay: 20s quiet period after page load (non-invasive wrapper) -->
+<script>
+window.addEventListener('load', function(){
+  // when to allow cats
+  window.__catsEnabledAt = Date.now() + 20000;
+  // if the site defines handleInteraction, wrap it to respect the delay
+  if (typeof window.handleInteraction === 'function') {
+    const __origHandleInteraction = window.handleInteraction;
+    window.handleInteraction = function(){
+      if (Date.now() < window.__catsEnabledAt) return;
+      return __origHandleInteraction.apply(this, arguments);
+    };
+  }
+});
+</script>
+
+</body></html>`;
 }
 
 function printViaIframe(html){
@@ -1258,101 +1272,22 @@ document.addEventListener('DOMContentLoaded', function() {
 // TEST: Trigger ascending cat on page load (disable before deploy)
 //window.addEventListener('load', () => showAscendingCat());
 </script>
+
+<!-- Cat delay: 20s quiet period after page load (non-invasive wrapper) -->
+<script>
+window.addEventListener('load', function(){
+  // when to allow cats
+  window.__catsEnabledAt = Date.now() + 20000;
+  // if the site defines handleInteraction, wrap it to respect the delay
+  if (typeof window.handleInteraction === 'function') {
+    const __origHandleInteraction = window.handleInteraction;
+    window.handleInteraction = function(){
+      if (Date.now() < window.__catsEnabledAt) return;
+      return __origHandleInteraction.apply(this, arguments);
+    };
+  }
+});
+</script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
